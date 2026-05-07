@@ -1,22 +1,22 @@
 {
     "(left|right)_shoulder_pitch": {
         "friction_loss": 0.1,
-        "armature": 0.013,
+        "armature": 0.005,
         "effort_limit": 17
     },
     "(left|right)_shoulder_(roll|yaw)": {
         "friction_loss": 0.1,
-        "armature": 0.013,
+        "armature": 0.002,
         "effort_limit": 14
     },
     "(left|right)_elbow_pitch": {
         "friction_loss": 0.1,
-        "armature": 0.013,
+        "armature": 0.002,
         "effort_limit": 14
     },
     "(left|right)_wrist_(yaw|roll|pitch)": {
         "friction_loss": 0.1,
-        "armature": 0.006,
+        "armature": 0.002,
         "effort_limit": 5.5
     },
     "(left|right)_finger(1|2|3|4|5)_joint(1|2|3|4)": {
