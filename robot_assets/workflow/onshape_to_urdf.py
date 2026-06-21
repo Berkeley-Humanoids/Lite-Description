@@ -20,8 +20,14 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 
 from . import robot_model
+
+
+def _onshape_to_robot_bin() -> str:
+    """Locate the onshape-to-robot CLI (PATH, else alongside the running interpreter)."""
+    return shutil.which("onshape-to-robot") or str(Path(sys.executable).parent / "onshape-to-robot")
 
 
 def export(robot_dir: Path, *, keep_assets: bool = False, convert: bool = False) -> Path:
@@ -43,7 +49,7 @@ def export(robot_dir: Path, *, keep_assets: bool = False, convert: bool = False)
         for scad_file in scad_dir.iterdir():
             shutil.copy(scad_file, assets_dir / scad_file.name)
 
-    arguments = ["onshape-to-robot", str(cad_dir)]
+    arguments = [_onshape_to_robot_bin(), str(cad_dir)]
     if keep_assets:
         arguments.append("--save-pickle")
     if convert:

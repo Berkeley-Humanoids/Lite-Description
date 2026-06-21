@@ -1,0 +1,8 @@
+{
+    "_comment": "MuJoCo <option> for the lite_biped sim -- same actively-damped tuning as the other Lite variants (stiff MIT-mode joints).",
+    "timestep": 0.001,
+    "integrator": "implicitfast",
+    "solver": "Newton",
+    "cone": "elliptic",
+    "impratio": 10
+}

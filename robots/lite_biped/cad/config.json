@@ -1,0 +1,28 @@
+{
+    "output_format": "urdf",
+    "output_filename": "lite_biped",
+
+    "document_id": "e9ee61a2e2678af2088d9f31",
+    "workspace_id": "26c0b8ae0ee1fec90698ed7b",
+    "assembly_name": "Biped",
+
+    "configuration": "Configuration=Sim Biped",
+    "robot_name": "lite_biped",
+
+    "ignore": {},
+    "include_configuration_suffix": false,
+    "round_decimals": 12,
+
+    "joint_properties": {
+        "default": {
+            "max_effort": 100,
+            "max_velocity": 100,
+            "friction": 0.1
+        }
+    },
+
+    "merge_stls": true,
+    "simplify_stls": true,
+    "max_stl_size": 2,
+    "use_scads": true
+}

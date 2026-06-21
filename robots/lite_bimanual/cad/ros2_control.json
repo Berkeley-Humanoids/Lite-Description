@@ -1,0 +1,54 @@
+{
+    "_comment": "ROS 2 hardware mapping for lite_bimanual. Same actuators / CAN layout as lite_dummy: left arm ids 11..17 on can0, right arm ids 21..27 on can1. No neck on this variant. Position limits come from the URDF; torque/current are hardware caps distinct from the sim effort_limit.",
+
+    "interfaces": {
+        "command": ["position", "velocity", "effort", "stiffness", "damping"],
+        "state": ["position", "velocity", "effort"]
+    },
+
+    "backends": {
+        "sim": "mujoco_ros2_control/MujocoSystem",
+        "mock": "mock_components/GenericSystem",
+        "real": "bar_robstride/RobstrideSystem"
+    },
+
+    "args": {
+        "use_fake_hardware": "true",
+        "use_sim": "false",
+        "mode": "arms",
+        "can_interface_left": "can0",
+        "can_interface_right": "can1",
+        "calibration_file": ""
+    },
+
+    "base_link": {"name": "base_link", "child": "chest"},
+
+    "combined_block_name": "LiteHardware",
+
+    "groups": [
+        {"name": "left_arm",  "block_name": "LiteLeftArm",  "can_interface_arg": "can_interface_left"},
+        {"name": "right_arm", "block_name": "LiteRightArm", "can_interface_arg": "can_interface_right"}
+    ],
+
+    "modes": {
+        "arms": ["left_arm", "right_arm"]
+    },
+
+    "joints": [
+        {"name": "left_shoulder_pitch",  "group": "left_arm",  "can_id": 11, "model": "rs-02", "direction": -1, "torque_limit": 17,  "current_limit": 27},
+        {"name": "left_shoulder_roll",   "group": "left_arm",  "can_id": 12, "model": "rs-00", "direction": -1, "torque_limit": 14,  "current_limit": 16},
+        {"name": "left_shoulder_yaw",    "group": "left_arm",  "can_id": 13, "model": "rs-00", "direction":  1, "torque_limit": 14,  "current_limit": 16},
+        {"name": "left_elbow_pitch",     "group": "left_arm",  "can_id": 14, "model": "rs-00", "direction": -1, "torque_limit": 14,  "current_limit": 16},
+        {"name": "left_wrist_yaw",       "group": "left_arm",  "can_id": 15, "model": "rs-05", "direction":  1, "torque_limit": 4.0, "current_limit": 14},
+        {"name": "left_wrist_roll",      "group": "left_arm",  "can_id": 16, "model": "rs-05", "direction": -1, "torque_limit": 4.0, "current_limit": 14},
+        {"name": "left_wrist_pitch",     "group": "left_arm",  "can_id": 17, "model": "rs-05", "direction": -1, "torque_limit": 4.0, "current_limit": 14},
+
+        {"name": "right_shoulder_pitch", "group": "right_arm", "can_id": 21, "model": "rs-02", "direction":  1, "torque_limit": 17,  "current_limit": 27},
+        {"name": "right_shoulder_roll",  "group": "right_arm", "can_id": 22, "model": "rs-00", "direction": -1, "torque_limit": 14,  "current_limit": 16},
+        {"name": "right_shoulder_yaw",   "group": "right_arm", "can_id": 23, "model": "rs-00", "direction":  1, "torque_limit": 14,  "current_limit": 16},
+        {"name": "right_elbow_pitch",    "group": "right_arm", "can_id": 24, "model": "rs-00", "direction":  1, "torque_limit": 14,  "current_limit": 16},
+        {"name": "right_wrist_yaw",      "group": "right_arm", "can_id": 25, "model": "rs-05", "direction":  1, "torque_limit": 4.0, "current_limit": 14},
+        {"name": "right_wrist_roll",     "group": "right_arm", "can_id": 26, "model": "rs-05", "direction":  1, "torque_limit": 4.0, "current_limit": 14},
+        {"name": "right_wrist_pitch",    "group": "right_arm", "can_id": 27, "model": "rs-05", "direction": -1, "torque_limit": 4.0, "current_limit": 14}
+    ]
+}

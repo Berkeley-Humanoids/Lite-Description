@@ -20,10 +20,15 @@ The same source serves both worlds:
 
 ## Variants
 
-| Variant | Description | `ros2_control` |
-|---|---|---|
-| `lite` | full-body Lite humanoid (legs, arms, neck, fingers) | model-only |
-| `lite_dummy` | bimanual upper body — the configuration `bar_ros2` deploys | yes — Robstride on two CAN buses |
+| Variant | Description | DoF | Root | `ros2_control` |
+|---|---|---|---|---|
+| `lite` | full-body Lite humanoid (legs, arms, neck, fingers) | — | — | model-only |
+| `lite_dummy` | V1 bimanual upper body (arms + neck) — the configuration `bar_ros2` deploys | 17 | `chest` | yes — Robstride on two CAN buses |
+| `lite_bimanual` | V2 bimanual arms (no neck) | 14 | `chest` | yes — Robstride on two CAN buses |
+| `lite_biped` | V2 legs (hip ×3 / knee / ankle ×3 per leg) | 14 | `pelvis` | model-only |
+
+All variants are generated from the same Onshape document (different `Configuration=…`); the
+`<robot>.urdf.xacro` of a `ros2_control` variant selects sim / mock / real hardware via xacro args.
 
 ## CAD source
 
@@ -122,7 +127,7 @@ from it, so the three formats share one kinematic origin):
 | `xacro` | `urdf/<variant>.urdf`, `ros2_control.json` | `xacro/<variant>.*.xacro` (`base_link` injected here) |
 | `package` | — | registers the variant in the repo-root `CMakeLists.txt` |
 
-A variant without a `ros2_control.json` (the full `lite`) generates a **model-only**
+A variant without a `ros2_control.json` (`lite`, `lite_biped`) generates a **model-only**
 package: a description macro + a thin assembly, no `<ros2_control>`.
 
 ### Editing colliders (OpenSCAD)

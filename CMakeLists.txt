@@ -11,6 +11,8 @@ find_package(ament_cmake REQUIRED)
 # Keep this list in sync with the converter's robot list.
 set(ROBOTS
   lite
+  lite_bimanual
+  lite_biped
   lite_dummy
 )
 
