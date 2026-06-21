@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "robot-descriptions"
+name = "robot-assets"
 version = "0.3.1"
-description = "Robot descriptions"
+description = "Robot asset tool: generate URDF / MJCF / xacro from Onshape CAD, and load robot descriptions"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -15,8 +15,13 @@ dependencies = [
 ]
 
 [project.scripts]
-robot-descriptions-onshape-to-urdf = "robot_descriptions.workflow.onshape_to_urdf:main"
-robot-descriptions-urdf-to-mjcf = "robot_descriptions.workflow.urdf_to_mjcf:main"
+# One converter, all three formats (CAD -> URDF + MJCF + xacro).
+robot-assets-generate = "robot_assets.workflow.generate:main"
+# Individual stages (useful for partial regen without re-hitting the Onshape API).
+robot-assets-onshape-to-urdf = "robot_assets.workflow.onshape_to_urdf:main"
+robot-assets-finalize-urdf = "robot_assets.workflow.finalize_urdf:main"
+robot-assets-urdf-to-mjcf = "robot_assets.workflow.urdf_to_mjcf:main"
+robot-assets-urdf-to-xacro = "robot_assets.workflow.urdf_to_xacro:main"
 
 [dependency-groups]
 test = [
@@ -27,11 +32,11 @@ test = [
 testpaths = ["tests"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["robot_descriptions"]
+packages = ["robot_assets"]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/robot_descriptions",
+    "/robot_assets",
     "/README.md",
     "/pyproject.toml",
 ]

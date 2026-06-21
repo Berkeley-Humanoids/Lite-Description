@@ -12,3 +12,16 @@ wheels/
 
 # Virtual environments
 .venv/
+
+# Onshape export intermediates (transient; the committed urdf/<robot>.urdf hub
+# is what --from-cache reuses).
+robots/*/cad/assets/
+robots/*/cad/robot.pkl
+
+# load_asset() download cache
+data/
+
+# colcon build artifacts (when robot_descriptions is built in a ROS workspace)
+/install/
+/log/
+/build/

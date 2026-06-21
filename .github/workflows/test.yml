@@ -24,3 +24,47 @@ jobs:
 
       - name: Run pytest
         run: uv run pytest -v
+
+  ros:
+    # ROS-side checks: the lite_description ament package builds, and every
+    # generated xacro expands to a valid URDF (the ros2_control_demos test).
+    runs-on: ubuntu-latest
+    container: ros:jazzy-ros-base
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ROS build + URDF tooling
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            python3-colcon-common-extensions \
+            ros-jazzy-xacro \
+            liburdfdom-tools \
+            ros-jazzy-ament-cmake \
+            ros-jazzy-ament-lint-auto \
+            ros-jazzy-ament-lint-common
+
+      - name: colcon build lite_description
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          mkdir -p ws/src
+          # The package.xml is at the repo root, so the repo IS the package.
+          ln -s "$GITHUB_WORKSPACE" ws/src/lite_description
+          cd ws
+          colcon build --packages-select lite_description
+
+      - name: Expand every xacro and check_urdf
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          set -euo pipefail
+          for assembly in robots/*/xacro/*.urdf.xacro; do
+            robot_dir=$(dirname "$(dirname "$assembly")")
+            meshes="$robot_dir/meshes/visual"
+            out="/tmp/$(basename "$assembly" .urdf.xacro).urdf"
+            echo "::group::$assembly"
+            xacro "$assembly" "mesh_root:=$meshes" > "$out"
+            check_urdf "$out"
+            echo "::endgroup::"
+          done
