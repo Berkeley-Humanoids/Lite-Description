@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>lite_description</name>
+  <version>0.0.1</version>
+  <description>
+    Description package for the Berkeley-Humanoids Lite humanoid (variants under
+    robots/: `lite` full-body and `lite_dummy` bimanual). Each ships xacro (ROS
+    entry, incl. a generated &lt;ros2_control&gt; block), a flattened URDF and MJCF
+    (training / deployment sim), and meshes. All artifacts are generated from
+    Onshape CAD by the `robot_assets` Python tool; do not hand-edit them.
+    ros2_control hardware plugins
+    (mock / mujoco_ros2_control / bar_robstride) are referenced by pluginlib
+    string only and are NOT build/exec dependencies of this package. This is an
+    asset-only package: it ships no launch files or RViz configs (visualization
+    and bringup are consumer concerns).
+  </description>
+  <maintainer email="chiyufeng@berkeley.edu">BAR Dev</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- xacro is the one runtime need: consumers expand our *.urdf.xacro. -->
+  <exec_depend>xacro</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

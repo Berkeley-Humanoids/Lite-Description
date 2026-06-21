@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 
-from robot_descriptions.workflow.urdf_to_mjcf import replace_cylinders_with_capsules
+from robot_assets.workflow.urdf_to_mjcf import replace_cylinders_with_capsules
 
 
 def test_replace_cylinders_with_capsules(tmp_path):

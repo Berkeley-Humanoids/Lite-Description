@@ -1,0 +1,23 @@
+{
+    "_comment": "Sim tuning for the lite_bimanual arm joints. Same actuators as lite_dummy (V1 bimanual), so the V1 armature / effort_limit values apply directly.",
+    "(left|right)_shoulder_pitch": {
+        "friction_loss": 0.1,
+        "armature": 0.005,
+        "effort_limit": 17
+    },
+    "(left|right)_shoulder_(roll|yaw)": {
+        "friction_loss": 0.1,
+        "armature": 0.002,
+        "effort_limit": 14
+    },
+    "(left|right)_elbow_pitch": {
+        "friction_loss": 0.1,
+        "armature": 0.002,
+        "effort_limit": 14
+    },
+    "(left|right)_wrist_(yaw|roll|pitch)": {
+        "friction_loss": 0.1,
+        "armature": 0.002,
+        "effort_limit": 5.5
+    }
+}

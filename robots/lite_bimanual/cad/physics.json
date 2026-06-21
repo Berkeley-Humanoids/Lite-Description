@@ -1,0 +1,8 @@
+{
+    "_comment": "MuJoCo <option> for the lite_bimanual deployment sim -- same actively-damped tuning as lite_dummy (stiff MIT-mode bimanual arms).",
+    "timestep": 0.001,
+    "integrator": "implicitfast",
+    "solver": "Newton",
+    "cone": "elliptic",
+    "impratio": 10
+}

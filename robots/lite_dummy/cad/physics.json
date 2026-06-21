@@ -1,0 +1,8 @@
+{
+    "_comment": "MuJoCo <option> block for the Lite deployment sim. Defaults (timestep=0.002, Euler, pyramidal cone, impratio=1) are unstable for a stiff MIT-mode humanoid; these match the MuJoCo docs' recommendations for actively-damped systems and Berkeley's Lite-Mujoco deployment sim.",
+    "timestep": 0.001,
+    "integrator": "implicitfast",
+    "solver": "Newton",
+    "cone": "elliptic",
+    "impratio": 10
+}

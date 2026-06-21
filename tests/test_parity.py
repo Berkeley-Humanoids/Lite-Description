@@ -1,8 +1,8 @@
 """URDF↔MJCF parity checks.
 
 Pairs are matched by stem within a single robot directory, so converted
-companion files (e.g. ``miku.urdf`` ↔ ``miku.xml``) are compared and unrelated
-variants (e.g. ``miku_frames.xml``) are skipped.
+companion files (e.g. ``lite.urdf`` ↔ ``lite.xml``) are compared and unrelated
+MJCF variants (e.g. a ``*_frames.xml`` with no same-stem URDF) are skipped.
 """
 import pytest
 

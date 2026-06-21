@@ -613,7 +613,7 @@ wheels = [
 ]
 
 [[package]]
-name = "robot-descriptions"
+name = "robot-assets"
 version = "0.3.1"
 source = { editable = "." }
 dependencies = [
