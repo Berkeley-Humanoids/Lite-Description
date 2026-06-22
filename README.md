@@ -123,7 +123,7 @@ from it, so the three formats share one kinematic origin):
 |---|---|---|
 | `onshape` | `cad/config.json`, `cad/scad/` | `urdf/<variant>.urdf`, `meshes/visual/` |
 | `urdf` | `urdf/<variant>.urdf`, `joint_properties.json` | finalized `urdf/<variant>.urdf` (effort harmonised; base_link-free; idempotent) |
-| `mjcf` | `urdf/<variant>.urdf`, `joint_properties.json`, `physics.json` | `mjcf/<variant>.xml` (`<option>`, actuators, sensors) |
+| `mjcf` | `urdf/<variant>.urdf`, `joint_properties.json`, `physics.json` | `mjcf/<variant>.xml` (`<option>`, actuators; no `<sensor>` block — joint state is read from sim data, and `mujoco_ros2_control` aborts on non-site sensors) |
 | `xacro` | `urdf/<variant>.urdf`, `ros2_control.json` | `xacro/<variant>.*.xacro` (`base_link` injected here) |
 | `package` | — | registers the variant in the repo-root `CMakeLists.txt` |
 
