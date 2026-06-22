@@ -4,8 +4,8 @@ Pipeline (called by ``generate.py``; the flat URDF is the hub):
   raw URDF + meshes  ->  MuJoCo compile  ->  post-process:
     * replace cylinder geoms with capsules
     * inject <option> physics tuning (from cad/physics.json)
-    * synthesize <motor> actuators (forcerange from joint_properties effort_limit)
-      and jointpos/jointvel sensors
+    * synthesize <motor> actuators (forcerange from joint_properties effort_limit;
+      no <sensor> block -- see add_actuators)
     * set per-joint frictionloss / armature (from joint_properties)
   ->  mjcf/<robot>.xml  (meshdir -> ../meshes/visual/)
 
@@ -157,7 +157,18 @@ def format_motor_forcerange_from_effort_limit(effort_limit) -> str:
     )
 
 
-def add_actuators_and_sensors(xml_file_path: Path, joint_properties: dict) -> None:
+def add_actuators(xml_file_path: Path, joint_properties: dict) -> None:
+    """Synthesize one <motor> actuator per actuated joint. Emits no <sensor> block.
+
+    jointpos/jointvel sensors are intentionally omitted. They are redundant with
+    mjData.qpos/qvel -- mjlab reads joint state from the Entity/Articulation data,
+    not from named MJCF sensors -- and they make the model unloadable under
+    mujoco_ros2_control: its plugin init loops over every sensor and builds
+    ``std::string(mj_id2name(model, mjOBJ_SITE, sensor_objid))``
+    (mujoco_ros2_control.cpp:124), which is null for a joint sensor when the model
+    has no <site>s -> SIGABRT. Keeping only actuators leaves the single MJCF usable
+    by both the RL/training sim and ros2_control.
+    """
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
 
@@ -171,8 +182,7 @@ def add_actuators_and_sensors(xml_file_path: Path, joint_properties: dict) -> No
         print("No joints with actuatorfrcrange found in XML")
         return
 
-    actuator_section = ensure_section(root, "actuator", before_tag_name="sensor")
-    sensor_section = ensure_section(root, "sensor", before_tag_name="equality")
+    actuator_section = ensure_section(root, "actuator")
 
     for joint_name in joints:
         motor = ET.SubElement(actuator_section, "motor")
@@ -181,16 +191,6 @@ def add_actuators_and_sensors(xml_file_path: Path, joint_properties: dict) -> No
         joint_config = resolve_joint_properties(joint_name, joint_properties)
         effort_limit = require_joint_attribute(joint_name, joint_config, "effort_limit")
         motor.set("forcerange", format_motor_forcerange_from_effort_limit(effort_limit))
-
-    for joint_name in joints:
-        sensor = ET.SubElement(sensor_section, "jointpos")
-        sensor.set("name", f"{joint_name}_pos")
-        sensor.set("joint", joint_name)
-
-    for joint_name in joints:
-        sensor = ET.SubElement(sensor_section, "jointvel")
-        sensor.set("name", f"{joint_name}_vel")
-        sensor.set("joint", joint_name)
 
     tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
 
@@ -285,7 +285,7 @@ def convert(
         if replaced:
             print(f"Replaced {replaced} cylinder geom(s) with capsules")
         add_option_tag(temp_xml, physics_options or {})
-        add_actuators_and_sensors(temp_xml, joint_properties)
+        add_actuators(temp_xml, joint_properties)
         apply_joint_properties(temp_xml, joint_properties)
         set_compiler_meshdir(temp_xml, out_meshdir)
 

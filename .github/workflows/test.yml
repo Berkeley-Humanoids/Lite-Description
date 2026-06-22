@@ -58,6 +58,9 @@ jobs:
         shell: bash
         run: |
           source /opt/ros/jazzy/setup.bash
+          # Source the package built in the previous step so the assembly's
+          # `$(find lite_description)/...` xacro includes resolve.
+          source "$GITHUB_WORKSPACE/ws/install/setup.bash"
           set -euo pipefail
           for assembly in robots/*/xacro/*.urdf.xacro; do
             robot_dir=$(dirname "$(dirname "$assembly")")
