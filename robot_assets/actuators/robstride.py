@@ -4,6 +4,7 @@ ROBSTRIDE_00_ACTUATOR_PARAMS = {
     "velocity_limit"    : 32.987,   # rad/s
     "effort_limit"      : 14.0,     # Nm
     "armature"          : 0.002,    # kgm^2
+    "friction_loss"     : 0.1,      # Nm
 }
 """ Parameters for the Robstride 00 actuator. """
 
@@ -12,7 +13,8 @@ ROBSTRIDE_00_ACTUATOR_PARAMS = {
 ROBSTRIDE_01_ACTUATOR_PARAMS = {
     "velocity_limit"    : 50.13,    # rad/s
     "effort_limit"      : 17.0,     # Nm
-    "armature"          : 0.005,   # kgm^2
+    "armature"          : 0.005,    # kgm^2
+    "friction_loss"     : 0.1,      # Nm
 }
 """ Parameters for the Robstride 01 actuator. """
 
@@ -21,7 +23,8 @@ ROBSTRIDE_01_ACTUATOR_PARAMS = {
 ROBSTRIDE_02_ACTUATOR_PARAMS = {
     "velocity_limit"    : 65.25,    # rad/s
     "effort_limit"      : 17.0,     # Nm
-    "armature"          : 0.005,   # kgm^2
+    "armature"          : 0.005,    # kgm^2
+    "friction_loss"     : 0.1,      # Nm
 }
 """ Parameters for the Robstride 02 actuator. """
 
@@ -31,6 +34,7 @@ ROBSTRIDE_03_ACTUATOR_PARAMS = {
     "velocity_limit"    : 31.83,    # rad/s
     "effort_limit"      : 60.0,     # Nm
     "armature"          : 0.01,     # kgm^2
+    "friction_loss"     : 0.1,      # Nm
 }
 """ Parameters for the Robstride 03 actuator. """
 
@@ -39,7 +43,8 @@ ROBSTRIDE_03_ACTUATOR_PARAMS = {
 ROBSTRIDE_04_ACTUATOR_PARAMS = {
     "velocity_limit"    : 31.83,    # rad/s
     "effort_limit"      : 120.0,    # Nm
-    "armature"          : 0.016,     # kgm^2
+    "armature"          : 0.016,    # kgm^2
+    "friction_loss"     : 0.1,      # Nm
 }
 """ Parameters for the Robstride 04 actuator. """
 
@@ -48,7 +53,8 @@ ROBSTRIDE_04_ACTUATOR_PARAMS = {
 ROBSTRIDE_05_ACTUATOR_PARAMS = {
     "velocity_limit"    : 76.39,    # rad/s
     "effort_limit"      : 5.5,      # Nm
-    "armature"          : 0.002,    # kgm^2
+    "armature"          : 0.001,    # kgm^2
+    "friction_loss"     : 0.1,      # Nm
 }
 """ Parameters for the Robstride 05 actuator. """
 
@@ -58,5 +64,6 @@ ROBSTRIDE_06_ACTUATOR_PARAMS = {
     "velocity_limit"    : 76.39,    # rad/s
     "effort_limit"      : 36.0,     # Nm
     "armature"          : 0.008,    # kgm^2
+    "friction_loss"     : 0.1,      # Nm
 }
 """ Parameters for the Robstride 06 actuator. """

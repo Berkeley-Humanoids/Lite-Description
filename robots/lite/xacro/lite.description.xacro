@@ -2042,7 +2042,7 @@
       <parent link="neck_roll" />
       <child link="head" />
       <axis xyz="0 0 1" />
-      <limit effort="9.0" velocity="100" lower="-0.698132" upper="0.349066" />
+      <limit effort="4.8" velocity="100" lower="-0.698132" upper="0.349066" />
       <joint_properties friction="0.1" />
     </joint>
     <!-- Joint from neck_yaw to neck_roll -->
@@ -2051,7 +2051,7 @@
       <parent link="neck_yaw" />
       <child link="neck_roll" />
       <axis xyz="0 0 1" />
-      <limit effort="9.0" velocity="100" lower="-0.523599" upper="0.523599" />
+      <limit effort="4.8" velocity="100" lower="-0.523599" upper="0.523599" />
       <joint_properties friction="0.1" />
     </joint>
     <!-- Joint from chest to neck_yaw -->
@@ -2060,7 +2060,7 @@
       <parent link="chest" />
       <child link="neck_yaw" />
       <axis xyz="0 0 1" />
-      <limit effort="9.0" velocity="100" lower="-0.785398" upper="0.785398" />
+      <limit effort="4.8" velocity="100" lower="-0.785398" upper="0.785398" />
       <joint_properties friction="0.1" />
     </joint>
     <!-- Joint from pelvis to chest -->
