@@ -1,0 +1,67 @@
+{
+    "(left|right)_shoulder_pitch": {
+        "friction_loss": 0.1,
+        "armature": 0.005,
+        "effort_limit": 17.0
+    },
+    "(left|right)_shoulder_(roll|yaw)": {
+        "friction_loss": 0.1,
+        "armature": 0.002,
+        "effort_limit": 14.0
+    },
+    "(left|right)_elbow_pitch": {
+        "friction_loss": 0.1,
+        "armature": 0.002,
+        "effort_limit": 14.0
+    },
+    "(left|right)_wrist_(yaw|roll|pitch)": {
+        "friction_loss": 0.1,
+        "armature": 0.002,
+        "effort_limit": 5.5
+    },
+    "(left|right)_hip_(pitch|roll)": {
+        "friction_loss": 0.1,
+        "armature": 0.03,
+        "effort_limit": 97.0
+    },
+    "(left|right)_hip_yaw": {
+        "friction_loss": 0.1,
+        "armature": 0.01,
+        "effort_limit": 40.0
+    },
+    "(left|right)_knee_pitch": {
+        "friction_loss": 0.1,
+        "armature": 0.03,
+        "effort_limit": 97.0
+    },
+    "(left|right)_ankle_(yaw|pitch)": {
+        "friction_loss": 0.1,
+        "armature": 0.01,
+        "effort_limit": 40.0
+    },
+    "(left|right)_ankle_roll": {
+        "friction_loss": 0.1,
+        "armature": 0.002,
+        "effort_limit": 5.5
+    },
+    "(left|right)_finger(1|2|3|4|5)_j(1|2|3|4)": {
+        "friction_loss": 0.1,
+        "armature": 0.01,
+        "effort_limit": 10
+    },
+    "neck_(roll|pitch|yaw)": {
+        "friction_loss": 0.1,
+        "armature": 0.01,
+        "effort_limit": 9.0
+    },
+    "waist_yaw": {
+        "friction_loss": 0.1,
+        "armature": 0.03,
+        "effort_limit": 97.0
+    },
+    "waist_(roll|pitch)": {
+        "friction_loss": 0.1,
+        "armature": 0.01,
+        "effort_limit": 40.0
+    }
+}

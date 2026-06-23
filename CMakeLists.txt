@@ -14,6 +14,7 @@ set(ROBOTS
   lite_bimanual
   lite_biped
   lite_dummy
+  lite_pro
 )
 
 # Install only the installable subdirs that exist for each robot (defensive:

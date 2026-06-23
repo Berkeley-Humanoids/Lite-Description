@@ -1,23 +1,28 @@
 {
-    "_comment": "Sim tuning for the lite_biped leg joints. Reused from the full lite leg values; review armature / effort_limit against the V2 leg actuator spec.",
-    "(left|right)_hip_(pitch|roll|yaw)": {
+    "_comment": "Sim tuning for the lite_biped leg joints. Same leg actuators as lite_pro, verified against the Robstride manuals: hip pitch/roll + knee = RS06 (peak 36 Nm), hip yaw = RS02 (17 Nm), ankle yaw/pitch = RS00 (14 Nm), ankle roll = RS05 (5.5 Nm). effort_limit is the manual peak torque; armature uses robstride.py per-actuator nominals (sysid pending).",
+    "(left|right)_hip_(pitch|roll)": {
         "friction_loss": 0.1,
-        "armature": 0.03,
-        "effort_limit": 97.0
+        "armature": 0.008,
+        "effort_limit": 36.0
+    },
+    "(left|right)_hip_yaw": {
+        "friction_loss": 0.1,
+        "armature": 0.005,
+        "effort_limit": 17.0
     },
     "(left|right)_knee_pitch": {
         "friction_loss": 0.1,
-        "armature": 0.03,
-        "effort_limit": 97.0
+        "armature": 0.008,
+        "effort_limit": 36.0
     },
     "(left|right)_ankle_(yaw|pitch)": {
         "friction_loss": 0.1,
-        "armature": 0.01,
-        "effort_limit": 27.0
+        "armature": 0.002,
+        "effort_limit": 14.0
     },
     "(left|right)_ankle_roll": {
         "friction_loss": 0.1,
-        "armature": 0.001,
+        "armature": 0.002,
         "effort_limit": 5.5
     }
 }

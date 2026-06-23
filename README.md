@@ -22,7 +22,8 @@ The same source serves both worlds:
 
 | Variant | Description | DoF | Root | `ros2_control` |
 |---|---|---|---|---|
-| `lite` | full-body Lite humanoid (legs, arms, neck, fingers) | — | — | model-only |
+| `lite` | full-body Lite humanoid (legs, 1-DoF waist yaw, arms, neck, 5-finger hands) | 72 | `pelvis` | model-only |
+| `lite_pro` | full-body Lite **Pro** humanoid (legs, 3-DoF waist, arms, neck, 5-finger hands) | 74 | `pelvis` | model-only |
 | `lite_dummy` | V1 bimanual upper body (arms + neck) — the configuration `bar_ros2` deploys | 17 | `chest` | yes — Robstride on two CAN buses |
 | `lite_bimanual` | V2 bimanual arms (no neck) | 14 | `chest` | yes — Robstride on two CAN buses |
 | `lite_biped` | V2 legs (hip ×3 / knee / ankle ×3 per leg) | 14 | `pelvis` | model-only |
