@@ -50,10 +50,15 @@ def export(robot_dir: Path, *, keep_assets: bool = False, convert: bool = False)
             shutil.copy(scad_file, assets_dir / scad_file.name)
 
     arguments = [_onshape_to_robot_bin(), str(cad_dir)]
-    if keep_assets:
-        arguments.append("--save-pickle")
     if convert:
+        # Offline: reload the existing robot.pkl instead of hitting the Onshape API.
+        # --save-pickle must NOT be combined with --convert: onshape-to-robot runs its
+        # save branch before the convert branch, but no robot is built on the convert
+        # path, so the two together raise a NameError.
         arguments.append("--convert")
+    elif keep_assets:
+        # Build path: persist robot.pkl so later runs can re-derive offline via --convert.
+        arguments.append("--save-pickle")
     subprocess.run(arguments, check=True)
 
     # Merged visual meshes -> the single meshes/visual/ copy.
