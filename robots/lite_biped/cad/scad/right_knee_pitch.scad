@@ -1,4 +1,4 @@
 % scale(1000) import("right_knee_pitch.stl");
 
-translate([70, -20, -500])
-cylinder(r=45, h=160, center=true);
+translate([70, -25, -520])
+cylinder(r=45, h=120, center=true);

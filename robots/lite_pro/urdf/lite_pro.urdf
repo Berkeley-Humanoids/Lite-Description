@@ -93,9 +93,9 @@
     </inertial>
     <!-- Part left_knee_pitch_parts -->
     <collision>
-      <origin xyz="-0.01 0.17 0" rpy="1.5708 1.5708 0" />
+      <origin xyz="-0.015 0.19 0" rpy="1.5708 1.5708 0" />
       <geometry>
-        <cylinder length="0.16" radius="0.045" />
+        <cylinder length="0.12" radius="0.045" />
       </geometry>
     </collision>
     <visual>
@@ -153,13 +153,13 @@
     </inertial>
     <!-- Part left_foot_parts -->
     <collision>
-      <origin xyz="0 0.08 0.015" rpy="1.5708 0 0" />
+      <origin xyz="0 0.05 0.015" rpy="1.5708 0 0" />
       <geometry>
         <box size="0.065 0.12 0.03" />
       </geometry>
     </collision>
     <collision>
-      <origin xyz="0 0.07 0.11" rpy="1.91986 0 0" />
+      <origin xyz="0 0.04 0.11" rpy="1.91986 0 0" />
       <geometry>
         <box size="0.07 0.05 0.03" />
       </geometry>
@@ -306,9 +306,9 @@
     </inertial>
     <!-- Part right_knee_pitch_parts -->
     <collision>
-      <origin xyz="-0.01 0.17 0" rpy="1.5708 1.5708 0" />
+      <origin xyz="-0.015 0.19 0" rpy="1.5708 1.5708 0" />
       <geometry>
-        <cylinder length="0.16" radius="0.045" />
+        <cylinder length="0.12" radius="0.045" />
       </geometry>
     </collision>
     <visual>
@@ -366,13 +366,13 @@
     </inertial>
     <!-- Part right_foot_parts -->
     <collision>
-      <origin xyz="0 0.08 0.015" rpy="1.5708 0 -0" />
+      <origin xyz="0 0.05 0.015" rpy="1.5708 0 -0" />
       <geometry>
         <box size="0.065 0.12 0.03" />
       </geometry>
     </collision>
     <collision>
-      <origin xyz="0 0.07 0.11" rpy="1.91986 0 -0" />
+      <origin xyz="0 0.04 0.11" rpy="1.91986 0 -0" />
       <geometry>
         <box size="0.07 0.05 0.03" />
       </geometry>
