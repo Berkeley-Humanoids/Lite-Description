@@ -207,7 +207,235 @@ def _top_macro(robot: str, name: str) -> str:
   </xacro:macro>"""
 
 
+# ---------------------------------------------------------------------------
+# Hybrid layout: heterogeneous backends on one controller_manager
+# ---------------------------------------------------------------------------
+# Selected by ros2_control.json ``"layout": "hybrid"``. The default CAN layout
+# (above) assumes one MIT joint macro + per-CAN-bus blocks sharing one ``real``
+# plugin. The hybrid layout instead emits one <ros2_control> block PER GROUP, each
+# with its own plugin + hardware params, and recognizes two joint kinds:
+#   * ethercat : CiA402 servo on an EtherCAT ring -- position/effort + an
+#                <ec_module> with a per-joint slave_config; no can_id.
+#   * sito     : MIT motor on SocketCAN -- the MIT interface set + can_id/model/
+#                direction (read by bar_sito).
+# Sim and mock still collapse to one combined MIT block so the shared controllers
+# (which claim the MIT surface) run unchanged. The ``args`` from ros2_control.json
+# drive the dispatch (master_id, sito_can_interface, backends, ec_control_frequency,
+# erob_config_dir) instead of the CAN layout's fixed mode / can_interface_*.
+
+
+def _hybrid_real_args(args: dict) -> list[str]:
+    """Args threaded to the real macro: everything but the sim/mock switches."""
+    return [k for k in args if k not in (SIM_ARG, MOCK_ARG)]
+
+
+def _interface_lines(command: list[str], state: list[str]) -> str:
+    cmd = "\n".join(f'      <command_interface name="{n}"/>' for n in command)
+    st = "\n".join(f'      <state_interface name="{n}"/>' for n in state)
+    return f"{cmd}\n{st}"
+
+
+def _hybrid_mit_joint_macro(robot: str, command: list[str], state: list[str]) -> str:
+    return f"""  <!-- MIT joint ({len(command)} command + {len(state)} state): the uniform
+       interface surface the sim/mock combined block exposes for every joint. -->
+  <xacro:macro name="{robot}_mit_joint" params="name">
+    <joint name="${{name}}">
+{_interface_lines(command, state)}
+    </joint>
+  </xacro:macro>"""
+
+
+def _hybrid_ec_joint_macro(robot: str) -> str:
+    return f"""  <!-- eRob joint on EtherCAT (CiA402 via EcCiA402Drive), CSP (mode 8). No
+       stiffness/damping interface: impedance is the drive's loop gains, set out of band
+       by SDO. slave_config is per-joint, generated from the calibration at launch. -->
+  <xacro:macro name="{robot}_ec_joint" params="name position erob_config_dir">
+    <joint name="${{name}}">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <command_interface name="effort"/>
+      <command_interface name="mode_of_operation"/>
+      <command_interface name="reset_fault"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+      <state_interface name="mode_of_operation_display"/>
+      <ec_module name="Slave${{position}}">
+        <plugin>ethercat_generic_plugins/EcCiA402Drive</plugin>
+        <param name="alias">0</param>
+        <param name="position">${{position}}</param>
+        <param name="mode_of_operation">8</param>
+        <param name="slave_config">${{erob_config_dir}}/${{name}}.yaml</param>
+      </ec_module>
+    </joint>
+  </xacro:macro>"""
+
+
+def _hybrid_sito_joint_macro(robot: str, command: list[str], state: list[str]) -> str:
+    return f"""  <!-- Sito joint on SocketCAN (MIT mode). Same interface surface as the combined
+       block; can_id / model / direction are read by bar_sito/SitoSystem. -->
+  <xacro:macro name="{robot}_sito_joint" params="name can_id model direction">
+    <joint name="${{name}}">
+{_interface_lines(command, state)}
+      <param name="can_id">${{can_id}}</param>
+      <param name="model">${{model}}</param>
+      <param name="direction">${{direction}}</param>
+    </joint>
+  </xacro:macro>"""
+
+
+def _hybrid_all_mit_macro(robot: str, joints: list[dict]) -> str:
+    calls = "\n".join(f'    <xacro:{robot}_mit_joint name="{j["name"]}"/>' for j in joints)
+    return f"""  <!-- Every joint as MIT, for the combined sim/mock block. -->
+  <xacro:macro name="{robot}_all_joints_mit">
+{calls}
+  </xacro:macro>"""
+
+
+def _hybrid_group_joints_macro(robot: str, group: dict, joints: list[dict]) -> str:
+    if group["kind"] == "ethercat":
+        calls = "\n".join(
+            f'    <xacro:{robot}_ec_joint name="{j["name"]}" position="{j["position"]}" '
+            f'erob_config_dir="${{erob_config_dir}}"/>'
+            for j in joints
+        )
+        return f"""  <xacro:macro name="{robot}_{group["name"]}_joints" params="erob_config_dir">
+{calls}
+  </xacro:macro>"""
+    calls = "\n".join(
+        f'    <xacro:{robot}_sito_joint name="{j["name"]}" can_id="{j["can_id"]}" '
+        f'model="{j["model"]}" direction="{j["direction"]}"/>'
+        for j in joints
+    )
+    return f"""  <xacro:macro name="{robot}_{group["name"]}_joints">
+{calls}
+  </xacro:macro>"""
+
+
+def _hybrid_combined_macro(robot: str, backends: dict) -> str:
+    return f"""  <!-- Combined single block for sim (MujocoSystem) and mock (GenericSystem),
+       exposing every joint with the MIT surface. -->
+  <xacro:macro name="{robot}_ros2_control_combined" params="name use_sim">
+    <ros2_control name="${{name}}" type="system">
+      <hardware>
+        <xacro:if value="${{use_sim}}">
+          <plugin>{backends["sim"]}</plugin>
+        </xacro:if>
+        <xacro:unless value="${{use_sim}}">
+          <plugin>{backends["mock"]}</plugin>
+        </xacro:unless>
+      </hardware>
+      <xacro:{robot}_all_joints_mit/>
+    </ros2_control>
+  </xacro:macro>"""
+
+
+def _hybrid_real_block(robot: str, group: dict) -> str:
+    hw = "\n".join(
+        f'          <param name="{k}">{v}</param>'
+        for k, v in group.get("hardware_params", {}).items()
+    )
+    if group["kind"] == "ethercat":
+        joints_call = (
+            f'        <xacro:{robot}_{group["name"]}_joints erob_config_dir="${{erob_config_dir}}"/>'
+        )
+    else:
+        joints_call = f'        <xacro:{robot}_{group["name"]}_joints/>'
+    block = f"""      <ros2_control name="{group["block_name"]}" type="system">
+        <hardware>
+          <plugin>{group["plugin"]}</plugin>
+{hw}
+        </hardware>
+{joints_call}
+      </ros2_control>"""
+    enable = group.get("enable_when")
+    if not enable:
+        return block
+    guard = " or ".join(f"backends == '{v}'" for v in enable)
+    return f"""    <xacro:if value="${{{guard}}}">
+{block}
+    </xacro:if>"""
+
+
+def _hybrid_real_macro(robot: str, cfg: dict) -> str:
+    params = " ".join(_hybrid_real_args(cfg["args"]))
+    blocks = "\n".join(_hybrid_real_block(robot, g) for g in cfg["groups"])
+    return f"""  <!-- Real hardware: one <ros2_control> block per group, each with its own plugin,
+       run concurrently in one controller_manager. Each block is gated by the `backends`
+       arg so a single bus can be brought up alone (e.g. for the Sito calibration sweep). -->
+  <xacro:macro name="{robot}_ros2_control_real" params="{params}">
+{blocks}
+  </xacro:macro>"""
+
+
+def _hybrid_top_macro(robot: str, cfg: dict) -> str:
+    top_params = " ".join(["name", *cfg["args"].keys()])
+    real_pass = "\n".join(f'        {a}="${{{a}}}"' for a in _hybrid_real_args(cfg["args"]))
+    return f"""  <!-- Top-level dispatch: combined block for sim/mock, per-group real blocks
+       otherwise (use_sim wins over use_fake_hardware, matching franka_ros2 / UR). -->
+  <xacro:macro name="{robot}_ros2_control" params="{top_params}">
+    <xacro:if value="${{use_sim or use_fake_hardware}}">
+      <xacro:{robot}_ros2_control_combined name="${{name}}" use_sim="${{use_sim}}"/>
+    </xacro:if>
+    <xacro:unless value="${{use_sim or use_fake_hardware}}">
+      <xacro:{robot}_ros2_control_real
+{real_pass}/>
+    </xacro:unless>
+  </xacro:macro>"""
+
+
+def _build_hybrid_ros2_control(robot: str, cfg: dict, limits: dict) -> str:
+    command = cfg["mit_interfaces"]["command"]
+    state = cfg["mit_interfaces"]["state"]
+    joints = cfg["joints"]
+    joints_by_group: dict[str, list[dict]] = {}
+    for joint in joints:
+        joints_by_group.setdefault(joint["group"], []).append(joint)
+
+    parts = [
+        _hybrid_mit_joint_macro(robot, command, state),
+        _hybrid_ec_joint_macro(robot),
+        _hybrid_sito_joint_macro(robot, command, state),
+        _hybrid_all_mit_macro(robot, joints),
+    ]
+    for group in cfg["groups"]:
+        parts.append(_hybrid_group_joints_macro(robot, group, joints_by_group.get(group["name"], [])))
+    parts.append(_hybrid_combined_macro(robot, cfg["backends"]))
+    parts.append(_hybrid_real_macro(robot, cfg))
+    parts.append(_hybrid_top_macro(robot, cfg))
+
+    body = "\n\n".join(parts)
+    return (
+        f'<?xml version="1.0"?>\n{_banner(robot)}\n'
+        f'<robot xmlns:xacro="http://www.ros.org/wiki/xacro">\n\n{body}\n\n</robot>\n'
+    )
+
+
+def _build_hybrid_assembly(robot: str, cfg: dict, package: str) -> str:
+    args = cfg.get("args", {})
+    arg_decls = "\n".join(f'  <xacro:arg name="{k}" default="{v}"/>' for k, v in args.items())
+    name_attr = cfg.get("combined_block_name", f"{robot}_system")
+    instantiation = "\n".join(f'    {a}="$(arg {a})"' for a in args)
+    return f"""<?xml version="1.0"?>
+{_banner(robot)}
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="{robot}">
+{arg_decls}
+
+  <xacro:include filename="$(find {package})/robots/{robot}/xacro/{robot}.description.xacro"/>
+  <xacro:include filename="$(find {package})/robots/{robot}/xacro/{robot}.ros2_control.xacro"/>
+
+  <xacro:{robot}_description/>
+
+  <xacro:{robot}_ros2_control
+    name="{name_attr}"
+{instantiation}/>
+</robot>
+"""
+
+
 def build_ros2_control_xacro(robot: str, ros2_control: dict, limits: dict) -> str:
+    if ros2_control.get("layout") == "hybrid":
+        return _build_hybrid_ros2_control(robot, ros2_control, limits)
     command = ros2_control["interfaces"]["command"]
     state = ros2_control["interfaces"]["state"]
     backends = ros2_control["backends"]
@@ -242,6 +470,8 @@ def build_ros2_control_xacro(robot: str, ros2_control: dict, limits: dict) -> st
 def build_assembly_xacro(robot: str, ros2_control: dict | None, package: str = DEFAULT_PACKAGE) -> str:
     """Top assembly. With a ros2_control spec it wires the hardware macro; without one
     (model-only robots like the full lite) it just instantiates the model."""
+    if ros2_control and ros2_control.get("layout") == "hybrid":
+        return _build_hybrid_assembly(robot, ros2_control, package)
     if not ros2_control:
         return f"""<?xml version="1.0"?>
 {_banner(robot)}
