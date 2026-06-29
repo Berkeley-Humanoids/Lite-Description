@@ -37,6 +37,7 @@ def generate(robot_dir: Path) -> list[Path]:
 
     tree = robot_model.parse(hub_urdf)
     root = tree.getroot()
+    robot_model.weld_joints(root, joint_properties)
     robot_model.harmonize_effort(root, joint_properties)
     robot_model.rewrite_mesh_filenames(root, lambda name: f"../meshes/visual/{name}")
     ensure_autogen_comment(root, robot_model.autogen_comment(robot))

@@ -94,6 +94,28 @@ def harmonize_effort(root: ET.Element, joint_properties: dict) -> None:
             limit.set("effort", str(config["effort_limit"]))
 
 
+def weld_joints(root: ET.Element, joint_properties: dict) -> None:
+    """Convert joints flagged ``"fixed": true`` in joint_properties to fixed joints.
+
+    Drops the movable-only children (``<axis>`` / ``<limit>`` / ``<dynamics>`` /
+    ``<mimic>``) so the joint rigidly welds its child to its parent. This retires a
+    CAD-real DoF (e.g. a locked waist) from the kinematic hub -- so the description
+    xacro, the MJCF (MuJoCo welds a fixed joint), and URDF<->MJCF parity all see a
+    rigid weld -- without re-exporting from Onshape.
+    """
+    for joint in root.findall("joint"):
+        name = joint.get("name")
+        if name is None or joint.get("type") == "fixed":
+            continue
+        config = resolve_properties(name, joint_properties)
+        if not (config and config.get("fixed")):
+            continue
+        joint.set("type", "fixed")
+        for tag in ("axis", "limit", "dynamics", "mimic"):
+            for element in joint.findall(tag):
+                joint.remove(element)
+
+
 def rewrite_mesh_filenames(root: ET.Element, rewrite: Callable[[str], str]) -> None:
     """Rewrite every ``<mesh filename>``; ``rewrite`` receives the file basename."""
     for mesh in root.iter("mesh"):
