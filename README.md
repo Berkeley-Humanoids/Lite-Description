@@ -59,7 +59,7 @@ install required.
 ### ROS 2
 
 `lite_description` is a standard `ament_cmake` package (its `package.xml` is at the repo
-root). Build it in a ROS 2 workspace — or pull it via `vcs` / `bar.repos` from `humanoid_control`
+root). Build it in a ROS 2 workspace — or pull it via `vcs` / `humanoid_control.repos` from `humanoid_control`
 — and `colcon build`. Downstream, `robot_state_publisher` runs xacro on
 `robots/<variant>/xacro/<variant>.urdf.xacro`, and
 `package://lite_description/robots/<variant>/meshes/visual/...` resolves after install.
