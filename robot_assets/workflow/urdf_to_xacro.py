@@ -217,7 +217,7 @@ def _top_macro(robot: str, name: str) -> str:
 #   * ethercat : CiA402 servo on an EtherCAT ring -- position/effort + an
 #                <ec_module> with a per-joint slave_config; no can_id.
 #   * sito     : MIT motor on SocketCAN -- the MIT interface set + can_id/model/
-#                direction (read by humanoid_control_sito).
+#                direction (read by humanoid_devices_sito).
 # Sim and mock still collapse to one combined MIT block so the shared controllers
 # (which claim the MIT surface) run unchanged. The ``args`` from ros2_control.json
 # drive the dispatch (master_id, sito_can_interface, backends, ec_control_frequency,
@@ -273,7 +273,7 @@ def _hybrid_ec_joint_macro(robot: str) -> str:
 
 def _hybrid_sito_joint_macro(robot: str, command: list[str], state: list[str]) -> str:
     return f"""  <!-- Sito joint on SocketCAN (MIT mode). Same interface surface as the combined
-       block; can_id / model / direction are read by humanoid_control_sito/SitoSystem. -->
+       block; can_id / model / direction are read by humanoid_devices_sito/SitoSystem. -->
   <xacro:macro name="{robot}_sito_joint" params="name can_id model direction">
     <joint name="${{name}}">
 {_interface_lines(command, state)}

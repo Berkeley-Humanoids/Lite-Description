@@ -113,7 +113,7 @@
                params="mode can_interface_left can_interface_right calibration_file">
     <ros2_control name="LiteLeftArm" type="system">
       <hardware>
-        <plugin>humanoid_control_robstride/RobstrideSystem</plugin>
+        <plugin>humanoid_devices_robstride/RobstrideSystem</plugin>
         <param name="can_interface">${can_interface_left}</param>
         <param name="calibration_file">${calibration_file}</param>
       </hardware>
@@ -121,7 +121,7 @@
     </ros2_control>
     <ros2_control name="LiteRightArm" type="system">
       <hardware>
-        <plugin>humanoid_control_robstride/RobstrideSystem</plugin>
+        <plugin>humanoid_devices_robstride/RobstrideSystem</plugin>
         <param name="can_interface">${can_interface_right}</param>
         <param name="calibration_file">${calibration_file}</param>
       </hardware>

@@ -9,7 +9,7 @@
     "backends": {
         "sim": "mujoco_ros2_control/MujocoSystem",
         "mock": "mock_components/GenericSystem",
-        "real": "humanoid_control_robstride/RobstrideSystem"
+        "real": "humanoid_devices_robstride/RobstrideSystem"
     },
 
     "args": {
