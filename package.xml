@@ -10,7 +10,7 @@
     (training / deployment sim), and meshes. All artifacts are generated from
     Onshape CAD by the `robot_assets` Python tool; do not hand-edit them.
     ros2_control hardware plugins
-    (mock / mujoco_ros2_control / humanoid_control_robstride) are referenced by pluginlib
+    (mock / mujoco_ros2_control / humanoid_devices_robstride) are referenced by pluginlib
     string only and are NOT build/exec dependencies of this package. This is an
     asset-only package: it ships no launch files or RViz configs (visualization
     and bringup are consumer concerns).
