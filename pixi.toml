@@ -1,10 +1,10 @@
 # pixi-build-ros manifest -- builds this ament package into a conda package
-# named ros-jazzy-lite-description. Consumed by the bar_buildfarm workspace;
+# named ros-jazzy-lite-description. Consumed by the humanoid-control-buildfarm workspace;
 # colcon ignores this file. Name/version/deps are read from package.xml.
 [package.build.backend]
 name = "pixi-build-ros"
 # Pinned to stay build-API compatible with the pixi version pinned in
-# bar_buildfarm CI. Bump deliberately, together with that pin.
+# humanoid-control-buildfarm CI. Bump deliberately, together with that pin.
 version = "==0.5.0"
 channels = ["https://prefix.dev/conda-forge"]
 
