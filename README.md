@@ -24,7 +24,7 @@ The same source serves both worlds:
 |---|---|---|---|---|
 | `lite` | full-body Lite humanoid (legs, 1-DoF waist yaw, arms, neck, 5-finger hands) | 72 | `pelvis` | model-only |
 | `lite_pro` | full-body Lite **Pro** humanoid (legs, 3-DoF waist, arms, neck, 5-finger hands) | 74 | `pelvis` | model-only |
-| `lite_dummy` | V1 bimanual upper body (arms + neck) — the configuration `humanoid_control` deploys | 17 | `chest` | yes — Robstride on two CAN buses |
+| `lite_dummy` | V1 bimanual upper body (arms + neck) — the configuration `Humanoid Control` deploys | 17 | `chest` | yes — Robstride on two CAN buses |
 | `lite_bimanual` | V2 bimanual arms (no neck) | 14 | `chest` | yes — Robstride on two CAN buses |
 | `lite_biped` | V2 legs (hip ×3 / knee / ankle ×3 per leg) | 14 | `pelvis` | model-only |
 
@@ -59,7 +59,7 @@ install required.
 ### ROS 2
 
 `lite_description` is a standard `ament_cmake` package (its `package.xml` is at the repo
-root). Build it in a ROS 2 workspace — or pull it via `vcs` / `humanoid_control.repos` from `humanoid_control`
+root). Build it in a ROS 2 workspace — or pull it via `vcs` / `humanoid_control.repos` from `Humanoid Control`
 — and `colcon build`. Downstream, `robot_state_publisher` runs xacro on
 `robots/<variant>/xacro/<variant>.urdf.xacro`, and
 `package://lite_description/robots/<variant>/meshes/visual/...` resolves after install.
