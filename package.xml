@@ -15,7 +15,7 @@
     asset-only package: it ships no launch files or RViz configs (visualization
     and bringup are consumer concerns).
   </description>
-  <maintainer email="chiyufeng@berkeley.edu">BAR Dev</maintainer>
+  <maintainer email="chiyufeng@berkeley.edu">Humanoid Control Dev</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
