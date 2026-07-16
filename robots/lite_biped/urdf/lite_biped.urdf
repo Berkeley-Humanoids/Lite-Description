@@ -18,6 +18,21 @@
       </material>
     </visual>
   </link>
+  <!-- Frame imu (dummy link + fixed joint) -->
+  <link name="imu">
+    <origin xyz="0 0 0" rpy="0 -0 0" />
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="1e-9" />
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0" />
+    </inertial>
+  </link>
+  <joint name="imu_frame" type="fixed">
+    <origin xyz="0 0 0.08" rpy="0 -0 0" />
+    <parent link="pelvis" />
+    <child link="imu" />
+    <axis xyz="0 0 0" />
+  </joint>
   <!-- Link left_hip_pitch -->
   <link name="left_hip_pitch">
     <inertial>
@@ -383,7 +398,7 @@
   </link>
   <!-- Joint from right_ankle_pitch to right_foot -->
   <joint name="right_ankle_roll" type="revolute">
-    <origin xyz="0 0.04 -0" rpy="0 1.5708 0" />
+    <origin xyz="-0 0.04 -0" rpy="-0 1.5708 0" />
     <parent link="right_ankle_pitch" />
     <child link="right_foot" />
     <axis xyz="0 0 1" />
@@ -392,7 +407,7 @@
   </joint>
   <!-- Joint from right_ankle_yaw to right_ankle_pitch -->
   <joint name="right_ankle_pitch" type="revolute">
-    <origin xyz="0.01 0 -0.34" rpy="-1.5708 0 -0" />
+    <origin xyz="0.01 0 -0.34" rpy="-1.5708 0 0" />
     <parent link="right_ankle_yaw" />
     <child link="right_ankle_pitch" />
     <axis xyz="0 0 1" />
@@ -401,7 +416,7 @@
   </joint>
   <!-- Joint from right_knee_pitch to right_ankle_yaw -->
   <joint name="right_ankle_yaw" type="revolute">
-    <origin xyz="-0.015 0 0" rpy="1.5708 0 -0" />
+    <origin xyz="-0.015 0 -0" rpy="1.5708 -0 -0" />
     <parent link="right_knee_pitch" />
     <child link="right_ankle_yaw" />
     <axis xyz="0 0 1" />

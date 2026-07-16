@@ -25,6 +25,9 @@
     <body name="pelvis">
       <inertial pos="0.0137049 6.97587e-07 0.0692011" quat="0.999864 -1.34288e-05 0.0164944 1.28012e-05" mass="2.1" diaginertia="0.00988318 0.00823366 0.0063777" />
       <geom pos="0.0137049 6.97587e-07 0.0692011" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.933333 0.933333 0.933333 1" mesh="pelvis_visual" />
+      <body name="imu" pos="0 0 0.08">
+        <inertial pos="0 0 0" mass="1e-09" diaginertia="0 0 0" />
+      </body>
       <body name="left_hip_pitch" pos="0.02 0.07 0" quat="0.642787 -0.766045 0 0">
         <inertial pos="-0.0114774 0.00418673 0.0187959" quat="0.143691 0.579874 -0.102327 0.795379" mass="0.18" diaginertia="0.000298425 0.00023209 0.000171935" />
         <joint name="left_hip_pitch" pos="0 0 0" axis="0 0 1" range="-2.35619 0.785398" actuatorfrcrange="-36 36" frictionloss="0.1" armature="0.008" />
