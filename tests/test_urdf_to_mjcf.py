@@ -58,17 +58,25 @@ def test_replace_cylinders_with_capsules_returns_zero_when_no_cylinders(tmp_path
 
 @pytest.mark.skipif(not MJCF_FILES, reason="no generated MJCFs")
 @pytest.mark.parametrize("mjcf_path", MJCF_FILES, ids=MJCF_IDS)
-def test_committed_mjcf_loads_and_has_no_sensors(mjcf_path):
-    """ros2_control safety guard: every committed MJCF must load and carry no sensors.
+def test_committed_mjcf_loads_and_sensors_are_site_backed(mjcf_path):
+    """ros2_control safety guard: every committed MJCF must load, and every sensor
+    it carries must be attached to a <site>.
 
     mujoco_ros2_control's plugin init loops over every sensor and builds
     ``std::string(mj_id2name(model, mjOBJ_SITE, sensor_objid))``
-    (mujoco_ros2_control.cpp:124) -- null for a joint sensor when the model has no
-    <site>s, which aborts the process. We ship sensor-free MJCFs so the one asset
-    loads under both mjlab (reads qpos/qvel from Entity data) and mujoco_ros2_control.
+    (mujoco_ros2_control.cpp:124) -- null (SIGABRT) for a sensor whose object is not
+    a <site>. Fixed-base variants ship sensor-free; the floating-base biped ships
+    base-state sensors (framequat/gyro/accelerometer/velocimeter/framepos), all
+    attached to the same IMU <site>, so the one asset loads under both mjlab (reads
+    qpos/qvel from Entity data) and mujoco_ros2_control.
     """
     model = mujoco.MjModel.from_xml_path(str(mjcf_path))
-    assert model.nsensor == 0, f"{mjcf_path} has {model.nsensor} sensor(s); must be 0"
+    for i in range(model.nsensor):
+        name = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_SENSOR, i)
+        assert model.sensor_objtype[i] == mujoco.mjtObj.mjOBJ_SITE, (
+            f"{mjcf_path} sensor {name!r} is not site-backed "
+            f"(objtype={model.sensor_objtype[i]}); mujoco_ros2_control would SIGABRT"
+        )
 
 
 def test_add_actuators_emits_motors_and_no_sensors(tmp_path):

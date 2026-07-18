@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Deployment sim SCENE for the floating-base lite_biped: the generated
+     robot (lite_biped.xml: freejoint + IMU site/sensors + actuators) on a
+     ground plane, with a `home` keyframe for the standing spawn pose.
+
+     Hand-authored (NOT generated): the generator emits the robot-only
+     lite_biped.xml (reused as-is by mjlab training, which adds its own
+     terrain); this wrapper adds the deployment floor + spawn pose. It lives
+     in this mjcf/ dir so the included robot's meshdir ("../meshes/visual/")
+     resolves. Consumed by humanoid_bringup_lite mujoco.launch (scene:=lite_biped_scene).
+
+     home keyframe qpos = [base xyz (0,0,0.80)] [base quat (1,0,0,0)]
+     [14 leg joints in model order: L hip p/r/y, knee, ankle y/p/r; then R],
+     matching the training default pose (knees-bent stand). -->
+<mujoco model="lite_biped_scene">
+  <include file="lite_biped.xml"/>
+
+  <statistic center="0 0 0.5" extent="1.6"/>
+
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.35 0.35 0.35" specular="0 0 0"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="120" elevation="-20"/>
+  </visual>
+
+  <asset>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge"
+             rgb1="0.2 0.3 0.4" rgb2="0.1 0.15 0.2" markrgb="0.8 0.8 0.8"
+             width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true"
+              texrepeat="5 5" reflectance="0.1"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 3.0" dir="0 0 -1" directional="true"/>
+    <geom name="floor" type="plane" size="0 0 0.05" material="groundplane"
+          condim="3" friction="1.0 0.005 0.0001"/>
+  </worldbody>
+
+  <keyframe>
+    <key name="home"
+         qpos="0 0 0.80 1 0 0 0
+               -0.1745 0 0 0.3491 0 -0.1745 0
+               -0.1745 0 0 0.3491 0 -0.1745 0"/>
+  </keyframe>
+</mujoco>

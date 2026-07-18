@@ -129,12 +129,40 @@ def _group_macro(robot: str, group: str, joints: list[dict], limits: dict) -> st
   </xacro:macro>"""
 
 
-def _combined_macro(robot: str, name: str, active_groups: list[dict], backends: dict) -> str:
+_IMU_STATE_INTERFACES = (
+    "orientation.x", "orientation.y", "orientation.z", "orientation.w",
+    "angular_velocity.x", "angular_velocity.y", "angular_velocity.z",
+    "linear_acceleration.x", "linear_acceleration.y", "linear_acceleration.z",
+)
+
+
+def _imu_sensor_block(imu: dict) -> str:
+    """A ros2_control <sensor> for the base IMU, emitted only under use_sim.
+
+    MujocoSystem backs these state interfaces from the MJCF
+    ``<name-without-_imu>_quat``/``_gyro``/``_accel`` sensors, and
+    imu_sensor_broadcaster republishes them as sensor_msgs/Imu. Guarded by
+    use_sim so the mock backend (no such MuJoCo sensor) is unaffected; real
+    hardware gets its IMU from a dedicated driver node, not ros2_control.
+    """
+    name = imu["name"]
+    ifaces = "\n".join(f'          <state_interface name="{n}"/>' for n in _IMU_STATE_INTERFACES)
+    return f"""      <xacro:if value="${{use_sim}}">
+        <sensor name="{name}">
+{ifaces}
+        </sensor>
+      </xacro:if>"""
+
+
+def _combined_macro(
+    robot: str, name: str, active_groups: list[dict], backends: dict, imu: dict | None = None
+) -> str:
     group_calls = "\n".join(
         f'      <xacro:{robot}_{g["name"]}_joints '
         f'use_fake_hardware="${{use_fake_hardware}}" use_sim="${{use_sim}}"/>'
         for g in active_groups
     )
+    imu_block = ("\n" + _imu_sensor_block(imu)) if imu else ""
     return f"""  <!-- Combined single-block layout for the sim and mock backends. -->
   <xacro:macro name="{robot}_ros2_control_combined" params="name use_fake_hardware use_sim">
     <ros2_control name="${{name}}" type="system">
@@ -146,7 +174,7 @@ def _combined_macro(robot: str, name: str, active_groups: list[dict], backends: 
           <plugin>{backends["mock"]}</plugin>
         </xacro:unless>
       </hardware>
-{group_calls}
+{group_calls}{imu_block}
     </ros2_control>
   </xacro:macro>"""
 
@@ -451,7 +479,7 @@ def build_ros2_control_xacro(robot: str, ros2_control: dict, limits: dict) -> st
     parts = [_joint_macro(robot, command, state)]
     for group in groups:
         parts.append(_group_macro(robot, group["name"], joints_by_group.get(group["name"], []), limits))
-    parts.append(_combined_macro(robot, combined_name, active_groups, backends))
+    parts.append(_combined_macro(robot, combined_name, active_groups, backends, ros2_control.get("imu")))
     parts.append(_real_macro(robot, groups, backends))
     parts.append(_top_macro(robot, combined_name))
 

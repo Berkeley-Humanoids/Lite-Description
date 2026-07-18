@@ -1,8 +1,13 @@
 {
-    "_comment": "MuJoCo <option> for the lite_biped sim -- same actively-damped tuning as the other Lite variants (stiff MIT-mode joints).",
-    "timestep": 0.001,
+    "_comment": "MuJoCo <option> for the lite_biped sim. Matched to mjlab's velocity-task training config (MujocoCfg defaults + the velocity override) so the RL policy sees the same contact/solver dynamics it trained against: timestep 0.005, Newton, implicitfast, PYRAMIDAL cone + impratio 1 (mjlab defaults; note high impratio only pairs with elliptic, so we keep impratio 1 here), iterations 10, ls_iterations 20. freejoint+imu are lite_biped-only (floating base + base-state sensors for the policy); the generator pops them before writing <option>.",
+    "timestep": 0.005,
     "integrator": "implicitfast",
     "solver": "Newton",
-    "cone": "elliptic",
-    "impratio": 10
+    "cone": "pyramidal",
+    "impratio": 1,
+    "iterations": 10,
+    "ls_iterations": 20,
+    "freejoint": true,
+    "imu": {"site": "imu_site", "prefix": "base", "pos": [0.0, 0.0, 0.0]},
+    "contact": {"foot_bodies": ["left_foot", "right_foot"], "foot_friction": 0.6, "default_condim": 1}
 }

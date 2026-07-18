@@ -216,6 +216,130 @@ def add_freejoint(xml_file_path: Path) -> None:
     print("Added floating_base_joint to first body element")
 
 
+def add_imu_site_and_sensors(xml_file_path: Path, imu: dict) -> None:
+    """Add an IMU <site> on the root body plus the base-state <sensor>s.
+
+    A floating-base locomotion sim needs, at the base:
+      - orientation / angular velocity / linear acceleration -> surfaced to
+        ros2_control's MujocoSystem as the ``<prefix>_imu`` sensor (from MJCF
+        ``<prefix>_quat``/``_gyro``/``_accel``), republished by
+        imu_sensor_broadcaster as sensor_msgs/Imu on /imu/data;
+      - body-frame linear velocity -> ``<prefix>_vel`` velocimeter, read by the
+        base-velocity MuJoCo physics plugin (the RL policy's ``base_lin_vel``
+        obs term; a state estimator supplies it on hardware).
+    A ``framepos`` is emitted too so mujoco_ros2_control's framepos/framequat
+    Odometry publisher (keyed by site name) is well-formed.
+
+    A <site> is mandatory: mujoco_ros2_control resolves every sensor's site via
+    ``mj_id2name(mjOBJ_SITE, ...)`` and SIGABRTs on a siteless model (see
+    add_actuators). Emitted only for floating-base variants (config-gated), so
+    the fixed-base ros2_control variants stay sensor-free.
+    """
+    site_name = imu.get("site", "imu_site")
+    prefix = imu.get("prefix", "base")
+    pos = imu.get("pos", [0.0, 0.0, 0.0])
+
+    tree = ET.parse(xml_file_path)
+    root = tree.getroot()
+    worldbody = root.find("worldbody")
+    first_body = worldbody.find("body") if worldbody is not None else None
+    if first_body is None:
+        print("No body element found in worldbody; skipping IMU site")
+        return
+
+    site = ET.Element("site")
+    site.set("name", site_name)
+    site.set("pos", " ".join(str(v) for v in pos))
+    # Keep a leading freejoint (if any) as the body's first child.
+    lead = 1 if (len(first_body) and first_body[0].tag == "joint"
+                 and first_body[0].get("type") == "free") else 0
+    first_body.insert(lead, site)
+
+    sensor_section = ensure_section(root, "sensor", before_tag_name="actuator")
+    # IMU triad (consumed by MujocoSystem's <prefix>_imu sensor), then the
+    # velocimeter (base linear velocity) and a framepos (odom completeness).
+    quat = ET.SubElement(sensor_section, "framequat")
+    quat.set("name", f"{prefix}_quat")
+    quat.set("objtype", "site")
+    quat.set("objname", site_name)
+    gyro = ET.SubElement(sensor_section, "gyro")
+    gyro.set("name", f"{prefix}_gyro")
+    gyro.set("site", site_name)
+    accel = ET.SubElement(sensor_section, "accelerometer")
+    accel.set("name", f"{prefix}_accel")
+    accel.set("site", site_name)
+    vel = ET.SubElement(sensor_section, "velocimeter")
+    vel.set("name", f"{prefix}_vel")
+    vel.set("site", site_name)
+    fpos = ET.SubElement(sensor_section, "framepos")
+    fpos.set("name", f"{prefix}_pos")
+    fpos.set("objtype", "site")
+    fpos.set("objname", site_name)
+
+    tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
+    print(f"Added IMU site '{site_name}' + {prefix}_quat/gyro/accel/vel/pos sensors")
+
+
+def patch_contacts(xml_file_path: Path, contact: dict) -> None:
+    """Match mjlab's contact model for a legged robot.
+
+    mjlab's ``patch_spec`` defaults every collision geom to ``condim=1``
+    (frictionless point contact) and then re-promotes only the foot geoms to
+    ``condim=3`` + friction + priority. This means the feet grip the ground while
+    a grazing shin/thigh/self-contact SLIDES instead of catching -- important for
+    a floating-base gait. Our stock MJCF leaves every collision geom at MuJoCo's
+    default ``condim=3`` + friction, so a leg capsule that brushes the ground (or
+    the other leg) grabs and can trip the robot.
+
+    Config (physics.json ``contact``): ``foot_bodies`` (bodies whose collision
+    geoms keep friction), ``foot_friction`` (slide coefficient), ``default_condim``
+    (everything else; 1 = frictionless). Higher ``priority`` on the feet makes the
+    foot friction win over the floor's in the contact pair.
+    """
+    foot_bodies = set(contact.get("foot_bodies", ()))
+    foot_friction = contact.get("foot_friction", 1.0)
+    default_condim = str(int(contact.get("default_condim", 1)))
+    foot_friction_str = f"{foot_friction} 0.005 0.0001"  # slide torsional rolling
+
+    tree = ET.parse(xml_file_path)
+    root = tree.getroot()
+    worldbody = root.find("worldbody")
+    if worldbody is None:
+        return
+
+    def is_collision(geom: ET.Element) -> bool:
+        return geom.get("contype", "1") != "0" or geom.get("conaffinity", "1") != "0"
+
+    n_foot = 0
+    n_other = 0
+
+    def walk(body: ET.Element, in_foot: bool) -> None:
+        nonlocal n_foot, n_other
+        foot = in_foot or (body.get("name") in foot_bodies)
+        for geom in body.findall("geom"):
+            if not is_collision(geom):
+                continue
+            if foot:
+                geom.set("condim", "3")
+                geom.set("friction", foot_friction_str)
+                geom.set("priority", "1")
+                n_foot += 1
+            else:
+                geom.set("condim", default_condim)
+                n_other += 1
+        for child in body.findall("body"):
+            walk(child, foot)
+
+    for body in worldbody.findall("body"):
+        walk(body, False)
+
+    tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
+    print(
+        f"Patched contacts: {n_foot} foot geom(s) condim=3 friction={foot_friction} "
+        f"priority=1 (bodies {sorted(foot_bodies)}); {n_other} other geom(s) condim={default_condim}"
+    )
+
+
 def apply_joint_properties(xml_file_path: Path, joint_properties: dict) -> None:
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
@@ -260,6 +384,8 @@ def convert(
     out_meshdir: str = "../meshes/visual/",
     physics_options: dict | None = None,
     freejoint: bool = False,
+    imu: dict | None = None,
+    contact: dict | None = None,
     notice: str | None = None,
 ) -> Path:
     urdf_path = Path(urdf_path)
@@ -286,6 +412,10 @@ def convert(
             print(f"Replaced {replaced} cylinder geom(s) with capsules")
         add_option_tag(temp_xml, physics_options or {})
         add_actuators(temp_xml, joint_properties)
+        if imu:
+            add_imu_site_and_sensors(temp_xml, imu)
+        if contact:
+            patch_contacts(temp_xml, contact)
         apply_joint_properties(temp_xml, joint_properties)
         set_compiler_meshdir(temp_xml, out_meshdir)
 
@@ -306,6 +436,11 @@ def generate(robot_dir: Path, *, freejoint: bool = False) -> list[Path]:
     joint_properties = json.loads((cad_dir / "joint_properties.json").read_text())
     physics_path = cad_dir / "physics.json"
     physics_options = json.loads(physics_path.read_text()) if physics_path.exists() else {}
+    # Floating-base + IMU are opt-in per variant via physics.json. Pop them out
+    # of physics_options so they don't leak into the MuJoCo <option> tag.
+    freejoint = bool(physics_options.pop("freejoint", False)) or freejoint
+    imu = physics_options.pop("imu", None)
+    contact = physics_options.pop("contact", None)
     mjcf_path = convert(
         hub_urdf,
         robot_dir / "mjcf" / f"{robot}.xml",
@@ -313,6 +448,8 @@ def generate(robot_dir: Path, *, freejoint: bool = False) -> list[Path]:
         meshes_dir=robot_dir / "meshes" / "visual",
         physics_options=physics_options,
         freejoint=freejoint,
+        imu=imu,
+        contact=contact,
         notice=robot_model.autogen_comment(robot),
     )
     return [mjcf_path]
