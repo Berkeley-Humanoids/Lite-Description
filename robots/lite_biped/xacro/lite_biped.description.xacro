@@ -215,7 +215,7 @@
       <parent link="left_knee_pitch" />
       <child link="left_ankle_yaw" />
       <axis xyz="0 0 1" />
-      <limit effort="14.0" velocity="100" lower="-0.785398" upper="0.785398" />
+      <limit effort="14.0" velocity="100" lower="-1.5708" upper="1.5708" />
       <joint_properties friction="0.1" />
     </joint>
     <!-- Joint from left_hip_yaw to left_knee_pitch -->
@@ -428,7 +428,7 @@
       <parent link="right_knee_pitch" />
       <child link="right_ankle_yaw" />
       <axis xyz="0 0 1" />
-      <limit effort="14.0" velocity="100" lower="-0.785398" upper="0.785398" />
+      <limit effort="14.0" velocity="100" lower="-1.5708" upper="1.5708" />
       <joint_properties friction="0.1" />
     </joint>
     <!-- Joint from right_hip_yaw to right_knee_pitch -->
