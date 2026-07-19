@@ -1,5 +1,5 @@
 {
-    "_comment": "ROS 2 hardware mapping for the lite_biped (legs-only floating-base humanoid). Drives generation of xacro/lite_biped.ros2_control.xacro. Joint position limits come from the URDF (single source). The sim/mock combined block also advertises a base IMU <sensor> (use_sim only), backed by the MJCF base_quat/base_gyro/base_accel sensors via MujocoSystem and republished by imu_sensor_broadcaster. real-hardware can_id/direction/current_limit are PLACEHOLDERS pending leg calibration.",
+    "_comment": "ROS 2 hardware mapping for the lite_biped (legs-only floating-base humanoid). Drives generation of xacro/lite_biped.ros2_control.xacro. Joint position limits come from the URDF (single source). The sim/mock combined block also advertises a base IMU <sensor> (use_sim only), backed by the MJCF base_quat/base_gyro/base_accel sensors via MujocoSystem and republished by imu_sensor_broadcaster. real-hardware can_id set from a live bus scan (left can2 ids 31-37, right can3 ids 41-47); direction/current_limit still pending commissioning + leg calibration.",
 
     "interfaces": {
         "command": ["position", "velocity", "effort", "stiffness", "damping"],
@@ -16,8 +16,8 @@
         "use_fake_hardware": "true",
         "use_sim": "false",
         "mode": "legs",
-        "can_interface_left": "can0",
-        "can_interface_right": "can1",
+        "can_interface_left": "can2",
+        "can_interface_right": "can3",
         "calibration_file": ""
     },
 
@@ -37,20 +37,20 @@
     },
 
     "joints": [
-        {"name": "left_hip_pitch",   "group": "left_leg",  "can_id": 11, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
-        {"name": "left_hip_roll",    "group": "left_leg",  "can_id": 12, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
-        {"name": "left_hip_yaw",     "group": "left_leg",  "can_id": 13, "model": "rs-02", "direction": 1, "torque_limit": 17.0, "current_limit": 27},
-        {"name": "left_knee_pitch",  "group": "left_leg",  "can_id": 14, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
-        {"name": "left_ankle_yaw",   "group": "left_leg",  "can_id": 15, "model": "rs-00", "direction": 1, "torque_limit": 14.0, "current_limit": 16},
-        {"name": "left_ankle_pitch", "group": "left_leg",  "can_id": 16, "model": "rs-00", "direction": 1, "torque_limit": 14.0, "current_limit": 16},
-        {"name": "left_ankle_roll",  "group": "left_leg",  "can_id": 17, "model": "rs-05", "direction": 1, "torque_limit": 5.5,  "current_limit": 14},
+        {"name": "left_hip_pitch",   "group": "left_leg",  "can_id": 31, "model": "rs-06", "direction": -1, "torque_limit": 36.0, "current_limit": 43},
+        {"name": "left_hip_roll",    "group": "left_leg",  "can_id": 32, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
+        {"name": "left_hip_yaw",     "group": "left_leg",  "can_id": 33, "model": "rs-02", "direction": 1, "torque_limit": 17.0, "current_limit": 27},
+        {"name": "left_knee_pitch",  "group": "left_leg",  "can_id": 34, "model": "rs-06", "direction": -1, "torque_limit": 36.0, "current_limit": 43},
+        {"name": "left_ankle_yaw",   "group": "left_leg",  "can_id": 35, "model": "rs-00", "direction": 1, "torque_limit": 14.0, "current_limit": 16},
+        {"name": "left_ankle_pitch", "group": "left_leg",  "can_id": 36, "model": "rs-00", "direction": 1, "torque_limit": 14.0, "current_limit": 16},
+        {"name": "left_ankle_roll",  "group": "left_leg",  "can_id": 37, "model": "rs-05", "direction": -1, "torque_limit": 5.5,  "current_limit": 14},
 
-        {"name": "right_hip_pitch",   "group": "right_leg", "can_id": 21, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
-        {"name": "right_hip_roll",    "group": "right_leg", "can_id": 22, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
-        {"name": "right_hip_yaw",     "group": "right_leg", "can_id": 23, "model": "rs-02", "direction": 1, "torque_limit": 17.0, "current_limit": 27},
-        {"name": "right_knee_pitch",  "group": "right_leg", "can_id": 24, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
-        {"name": "right_ankle_yaw",   "group": "right_leg", "can_id": 25, "model": "rs-00", "direction": 1, "torque_limit": 14.0, "current_limit": 16},
-        {"name": "right_ankle_pitch", "group": "right_leg", "can_id": 26, "model": "rs-00", "direction": 1, "torque_limit": 14.0, "current_limit": 16},
-        {"name": "right_ankle_roll",  "group": "right_leg", "can_id": 27, "model": "rs-05", "direction": 1, "torque_limit": 5.5,  "current_limit": 14}
+        {"name": "right_hip_pitch",   "group": "right_leg", "can_id": 41, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
+        {"name": "right_hip_roll",    "group": "right_leg", "can_id": 42, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
+        {"name": "right_hip_yaw",     "group": "right_leg", "can_id": 43, "model": "rs-02", "direction": 1, "torque_limit": 17.0, "current_limit": 27},
+        {"name": "right_knee_pitch",  "group": "right_leg", "can_id": 44, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
+        {"name": "right_ankle_yaw",   "group": "right_leg", "can_id": 45, "model": "rs-00", "direction": 1, "torque_limit": 14.0, "current_limit": 16},
+        {"name": "right_ankle_pitch", "group": "right_leg", "can_id": 46, "model": "rs-00", "direction": -1, "torque_limit": 14.0, "current_limit": 16},
+        {"name": "right_ankle_roll",  "group": "right_leg", "can_id": 47, "model": "rs-05", "direction": -1, "torque_limit": 5.5,  "current_limit": 14}
     ]
 }

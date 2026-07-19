@@ -8,6 +8,6 @@
     "iterations": 10,
     "ls_iterations": 20,
     "freejoint": true,
-    "imu": {"site": "imu_site", "prefix": "base", "pos": [0.0, 0.0, 0.0]},
+    "imu": {"site": "imu_site", "prefix": "base", "pos": [0.0, 0.0, 0.08]},
     "contact": {"foot_bodies": ["left_foot", "right_foot"], "foot_friction": 0.6, "default_condim": 1}
 }

@@ -26,6 +26,21 @@
         </material>
       </visual>
     </link>
+    <!-- Frame imu (dummy link + fixed joint) -->
+    <link name="imu">
+      <origin xyz="0 0 0" rpy="0 -0 0" />
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-9" />
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0" />
+      </inertial>
+    </link>
+    <joint name="imu_frame" type="fixed">
+      <origin xyz="0 0 0.08" rpy="0 -0 0" />
+      <parent link="pelvis" />
+      <child link="imu" />
+      <axis xyz="0 0 0" />
+    </joint>
     <!-- Link left_hip_pitch -->
     <link name="left_hip_pitch">
       <inertial>
@@ -200,7 +215,7 @@
       <parent link="left_knee_pitch" />
       <child link="left_ankle_yaw" />
       <axis xyz="0 0 1" />
-      <limit effort="14.0" velocity="100" lower="-0.785398" upper="0.785398" />
+      <limit effort="14.0" velocity="100" lower="-1.5708" upper="1.5708" />
       <joint_properties friction="0.1" />
     </joint>
     <!-- Joint from left_hip_yaw to left_knee_pitch -->
@@ -260,19 +275,19 @@
     <!-- Link right_hip_roll -->
     <link name="right_hip_roll">
       <inertial>
-        <origin xyz="-1.13349e-07 0.0525083 -0.0652488" rpy="0 0 0" />
+        <origin xyz="2.6715e-08 0.0525085 -0.0652483" rpy="0 0 0" />
         <mass value="0.93" />
         <inertia ixx="0.00263147" ixy="2.71e-10" ixz="6.079e-09" iyy="0.00142387" iyz="-0.000651423" izz="0.00255493" />
       </inertial>
       <!-- Part right_hip_roll_parts -->
       <collision>
-        <origin xyz="-0 0.181098 -0.0871979" rpy="1.22173 0 0" />
+        <origin xyz="1.40064e-07 0.181098 -0.0871974" rpy="1.22173 -0 0" />
         <geometry>
           <cylinder length="0.15" radius="0.05" />
         </geometry>
       </collision>
       <visual>
-        <origin xyz="-1.13349e-07 0.0525083 -0.0652488" rpy="0 -1.22173 1.5708" />
+        <origin xyz="2.6715e-08 0.0525085 -0.0652483" rpy="0 -1.22173 1.5708" />
         <geometry>
           <mesh filename="${mesh_root}/right_hip_roll_visual.stl" />
         </geometry>
@@ -290,7 +305,7 @@
       </inertial>
       <!-- Part right_hip_yaw_parts -->
       <visual>
-        <origin xyz="0.00130421 2.35733e-05 -0.237299" rpy="0 0 0" />
+        <origin xyz="0.00130421 2.35733e-05 -0.237299" rpy="0 -0 0" />
         <geometry>
           <mesh filename="${mesh_root}/right_hip_yaw_visual.stl" />
         </geometry>
@@ -391,7 +406,7 @@
     </link>
     <!-- Joint from right_ankle_pitch to right_foot -->
     <joint name="right_ankle_roll" type="revolute">
-      <origin xyz="0 0.04 -0" rpy="0 1.5708 0" />
+      <origin xyz="0 0.04 -0" rpy="-0 1.5708 0" />
       <parent link="right_ankle_pitch" />
       <child link="right_foot" />
       <axis xyz="0 0 1" />
@@ -400,7 +415,7 @@
     </joint>
     <!-- Joint from right_ankle_yaw to right_ankle_pitch -->
     <joint name="right_ankle_pitch" type="revolute">
-      <origin xyz="0.01 0 -0.34" rpy="-1.5708 0 -0" />
+      <origin xyz="0.01 0 -0.34" rpy="-1.5708 0 0" />
       <parent link="right_ankle_yaw" />
       <child link="right_ankle_pitch" />
       <axis xyz="0 0 1" />
@@ -409,16 +424,16 @@
     </joint>
     <!-- Joint from right_knee_pitch to right_ankle_yaw -->
     <joint name="right_ankle_yaw" type="revolute">
-      <origin xyz="-0.015 0 0" rpy="1.5708 0 -0" />
+      <origin xyz="-0.015 0 0" rpy="1.5708 -0 -0" />
       <parent link="right_knee_pitch" />
       <child link="right_ankle_yaw" />
       <axis xyz="0 0 1" />
-      <limit effort="14.0" velocity="100" lower="-0.785398" upper="0.785398" />
+      <limit effort="14.0" velocity="100" lower="-1.5708" upper="1.5708" />
       <joint_properties friction="0.1" />
     </joint>
     <!-- Joint from right_hip_yaw to right_knee_pitch -->
     <joint name="right_knee_pitch" type="revolute">
-      <origin xyz="-0.01 -0 -0.33" rpy="-1.5708 0 0" />
+      <origin xyz="-0.01 -0 -0.33" rpy="-1.5708 -0 0" />
       <parent link="right_hip_yaw" />
       <child link="right_knee_pitch" />
       <axis xyz="0 0 1" />
@@ -427,7 +442,7 @@
     </joint>
     <!-- Joint from right_hip_roll to right_hip_yaw -->
     <joint name="right_hip_yaw" type="revolute">
-      <origin xyz="-0 -0.0068404 -0.0187939" rpy="0 -1.22173 1.5708" />
+      <origin xyz="0 -0.0068404 -0.0187939" rpy="0 -1.22173 1.5708" />
       <parent link="right_hip_roll" />
       <child link="right_hip_yaw" />
       <axis xyz="0 0 1" />

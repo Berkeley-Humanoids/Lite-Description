@@ -30,62 +30,62 @@
   </xacro:macro>
 
   <xacro:macro name="lite_biped_left_leg_joints" params="use_fake_hardware use_sim">
-    <xacro:lite_biped_joint name="left_hip_pitch" can_id="11" model="rs-06" direction="1"
+    <xacro:lite_biped_joint name="left_hip_pitch" can_id="31" model="rs-06" direction="-1"
                       lower_limit="-2.35619" upper_limit="0.785398"
                       torque_limit="36.0" current_limit="43"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
-    <xacro:lite_biped_joint name="left_hip_roll" can_id="12" model="rs-06" direction="1"
+    <xacro:lite_biped_joint name="left_hip_roll" can_id="32" model="rs-06" direction="1"
                       lower_limit="-0.349066" upper_limit="1.5708"
                       torque_limit="36.0" current_limit="43"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
-    <xacro:lite_biped_joint name="left_hip_yaw" can_id="13" model="rs-02" direction="1"
+    <xacro:lite_biped_joint name="left_hip_yaw" can_id="33" model="rs-02" direction="1"
                       lower_limit="-1.5708" upper_limit="1.5708"
                       torque_limit="17.0" current_limit="27"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
-    <xacro:lite_biped_joint name="left_knee_pitch" can_id="14" model="rs-06" direction="1"
+    <xacro:lite_biped_joint name="left_knee_pitch" can_id="34" model="rs-06" direction="-1"
                       lower_limit="0.0" upper_limit="2.35619"
                       torque_limit="36.0" current_limit="43"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
-    <xacro:lite_biped_joint name="left_ankle_yaw" can_id="15" model="rs-00" direction="1"
-                      lower_limit="-0.785398" upper_limit="0.785398"
+    <xacro:lite_biped_joint name="left_ankle_yaw" can_id="35" model="rs-00" direction="1"
+                      lower_limit="-1.5708" upper_limit="1.5708"
                       torque_limit="14.0" current_limit="16"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
-    <xacro:lite_biped_joint name="left_ankle_pitch" can_id="16" model="rs-00" direction="1"
+    <xacro:lite_biped_joint name="left_ankle_pitch" can_id="36" model="rs-00" direction="1"
                       lower_limit="-0.523599" upper_limit="0.872665"
                       torque_limit="14.0" current_limit="16"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
-    <xacro:lite_biped_joint name="left_ankle_roll" can_id="17" model="rs-05" direction="1"
+    <xacro:lite_biped_joint name="left_ankle_roll" can_id="37" model="rs-05" direction="-1"
                       lower_limit="-0.349066" upper_limit="0.349066"
                       torque_limit="5.5" current_limit="14"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
   </xacro:macro>
 
   <xacro:macro name="lite_biped_right_leg_joints" params="use_fake_hardware use_sim">
-    <xacro:lite_biped_joint name="right_hip_pitch" can_id="21" model="rs-06" direction="1"
+    <xacro:lite_biped_joint name="right_hip_pitch" can_id="41" model="rs-06" direction="1"
                       lower_limit="-2.35619" upper_limit="0.785398"
                       torque_limit="36.0" current_limit="43"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
-    <xacro:lite_biped_joint name="right_hip_roll" can_id="22" model="rs-06" direction="1"
+    <xacro:lite_biped_joint name="right_hip_roll" can_id="42" model="rs-06" direction="1"
                       lower_limit="-1.5708" upper_limit="0.349066"
                       torque_limit="36.0" current_limit="43"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
-    <xacro:lite_biped_joint name="right_hip_yaw" can_id="23" model="rs-02" direction="1"
+    <xacro:lite_biped_joint name="right_hip_yaw" can_id="43" model="rs-02" direction="1"
                       lower_limit="-1.5708" upper_limit="1.5708"
                       torque_limit="17.0" current_limit="27"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
-    <xacro:lite_biped_joint name="right_knee_pitch" can_id="24" model="rs-06" direction="1"
+    <xacro:lite_biped_joint name="right_knee_pitch" can_id="44" model="rs-06" direction="1"
                       lower_limit="0.0" upper_limit="2.35619"
                       torque_limit="36.0" current_limit="43"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
-    <xacro:lite_biped_joint name="right_ankle_yaw" can_id="25" model="rs-00" direction="1"
-                      lower_limit="-0.785398" upper_limit="0.785398"
+    <xacro:lite_biped_joint name="right_ankle_yaw" can_id="45" model="rs-00" direction="1"
+                      lower_limit="-1.5708" upper_limit="1.5708"
                       torque_limit="14.0" current_limit="16"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
-    <xacro:lite_biped_joint name="right_ankle_pitch" can_id="26" model="rs-00" direction="1"
+    <xacro:lite_biped_joint name="right_ankle_pitch" can_id="46" model="rs-00" direction="-1"
                       lower_limit="-0.523599" upper_limit="0.872665"
                       torque_limit="14.0" current_limit="16"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
-    <xacro:lite_biped_joint name="right_ankle_roll" can_id="27" model="rs-05" direction="1"
+    <xacro:lite_biped_joint name="right_ankle_roll" can_id="47" model="rs-05" direction="-1"
                       lower_limit="-0.349066" upper_limit="0.349066"
                       torque_limit="5.5" current_limit="14"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>

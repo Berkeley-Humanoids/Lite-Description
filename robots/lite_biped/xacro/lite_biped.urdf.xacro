@@ -4,8 +4,8 @@
   <xacro:arg name="use_fake_hardware" default="true"/>
   <xacro:arg name="use_sim" default="false"/>
   <xacro:arg name="mode" default="legs"/>
-  <xacro:arg name="can_interface_left" default="can0"/>
-  <xacro:arg name="can_interface_right" default="can1"/>
+  <xacro:arg name="can_interface_left" default="can2"/>
+  <xacro:arg name="can_interface_right" default="can3"/>
   <xacro:arg name="calibration_file" default=""/>
 
   <xacro:include filename="$(find lite_description)/robots/lite_biped/xacro/lite_biped.description.xacro"/>
