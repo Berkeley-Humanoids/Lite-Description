@@ -121,10 +121,11 @@
     </ros2_control>
   </xacro:macro>
 
-  <!-- Real hardware: one <ros2_control> block per CAN bus. The controller_manager
-       runs them concurrently and exposes a single flat joint list to controllers. -->
+  <!-- Real hardware: one <ros2_control> block per CAN bus (plus the base IMU
+       sensor). The controller_manager runs them concurrently and exposes a
+       single flat joint list to controllers. -->
   <xacro:macro name="lite_biped_ros2_control_real"
-               params="mode can_interface_left can_interface_right calibration_file">
+               params="mode can_interface_left can_interface_right calibration_file imu_port">
     <ros2_control name="LiteBipedLeftLeg" type="system">
       <hardware>
         <plugin>humanoid_devices_robstride/RobstrideSystem</plugin>
@@ -141,13 +142,31 @@
       </hardware>
       <xacro:lite_biped_right_leg_joints use_fake_hardware="false" use_sim="false"/>
     </ros2_control>
+    <ros2_control name="LiteBipedIMU" type="sensor">
+      <hardware>
+        <plugin>humanoid_devices_imu_hardware/YahboomImuSensor</plugin>
+        <param name="port">${imu_port}</param>
+      </hardware>
+      <sensor name="base_imu">
+        <state_interface name="orientation.x"/>
+        <state_interface name="orientation.y"/>
+        <state_interface name="orientation.z"/>
+        <state_interface name="orientation.w"/>
+        <state_interface name="angular_velocity.x"/>
+        <state_interface name="angular_velocity.y"/>
+        <state_interface name="angular_velocity.z"/>
+        <state_interface name="linear_acceleration.x"/>
+        <state_interface name="linear_acceleration.y"/>
+        <state_interface name="linear_acceleration.z"/>
+      </sensor>
+    </ros2_control>
   </xacro:macro>
 
   <!-- Top-level dispatch: combined block for sim/mock, per-bus blocks for real
        (use_sim wins over use_fake_hardware, matching franka_ros2 / UR precedence). -->
   <xacro:macro name="lite_biped_ros2_control"
                params="name use_fake_hardware use_sim mode
-                       can_interface_left can_interface_right calibration_file">
+                       can_interface_left can_interface_right calibration_file imu_port">
     <xacro:if value="${use_sim or use_fake_hardware}">
       <xacro:lite_biped_ros2_control_combined name="${name}"
         use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
@@ -156,7 +175,8 @@
       <xacro:lite_biped_ros2_control_real mode="${mode}"
         can_interface_left="${can_interface_left}"
         can_interface_right="${can_interface_right}"
-        calibration_file="${calibration_file}"/>
+        calibration_file="${calibration_file}"
+        imu_port="${imu_port}"/>
     </xacro:unless>
   </xacro:macro>
 
