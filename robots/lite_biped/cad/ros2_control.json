@@ -18,14 +18,16 @@
         "mode": "legs",
         "can_interface_left": "can2",
         "can_interface_right": "can3",
-        "calibration_file": ""
+        "calibration_file": "",
+        "imu_port": "/dev/ttyUSB0"
     },
 
     "base_link": {"name": "base_link", "child": "pelvis"},
 
     "combined_block_name": "LiteBipedHardware",
 
-    "imu": {"name": "base_imu"},
+    "_comment_imu": "Sim/mock: the base_imu <sensor> lives in the combined block, backed by MujocoSystem's MJCF sensors. Real: a standalone <ros2_control type='sensor'> block (real_block_name) driven by real_plugin (Yahboom WIT USB IMU on imu_port), exposing the SAME interfaces so imu_sensor_broadcaster republishes /imu/data identically -- no separate driver node.",
+    "imu": {"name": "base_imu", "real_plugin": "humanoid_devices_imu_hardware/YahboomImuSensor", "real_block_name": "LiteBipedIMU"},
 
     "groups": [
         {"name": "left_leg",  "block_name": "LiteBipedLeftLeg",  "can_interface_arg": "can_interface_left"},

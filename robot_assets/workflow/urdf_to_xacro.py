@@ -192,7 +192,31 @@ def _real_block(robot: str, group: dict, real_plugin: str) -> str:
     </ros2_control>"""
 
 
-def _real_macro(robot: str, groups: list[dict], backends: dict) -> str:
+def _real_imu_block(imu: dict) -> str:
+    """A standalone <ros2_control type="sensor"> block for the real base IMU.
+
+    Unlike the sim sensor (backed by MujocoSystem inside the combined block),
+    the real IMU is its own hardware component reading a USB-serial driver on
+    ``imu_port``. It exports the SAME state interfaces as the sim sensor, so
+    imu_sensor_broadcaster republishes /imu/data identically on sim and real
+    (no standalone driver node). Emitted only when ros2_control.json's ``imu``
+    carries a ``real_plugin``.
+    """
+    name = imu["name"]
+    block_name = imu.get("real_block_name", "BaseIMU")
+    ifaces = "\n".join(f'        <state_interface name="{n}"/>' for n in _IMU_STATE_INTERFACES)
+    return f"""    <ros2_control name="{block_name}" type="sensor">
+      <hardware>
+        <plugin>{imu["real_plugin"]}</plugin>
+        <param name="port">${{imu_port}}</param>
+      </hardware>
+      <sensor name="{name}">
+{ifaces}
+      </sensor>
+    </ros2_control>"""
+
+
+def _real_macro(robot: str, groups: list[dict], backends: dict, imu: dict | None = None) -> str:
     real_plugin = backends["real"]
     blocks = []
     for group in groups:
@@ -207,21 +231,42 @@ def _real_macro(robot: str, groups: list[dict], backends: dict) -> str:
                 f"    </xacro:if>"
             )
         blocks.append(block)
+    real_imu = bool(imu and imu.get("real_plugin"))
+    if real_imu:
+        blocks.append(_real_imu_block(imu))
     body = "\n".join(blocks)
-    return f"""  <!-- Real hardware: one <ros2_control> block per CAN bus. The controller_manager
-       runs them concurrently and exposes a single flat joint list to controllers. -->
+    # imu_port is only a macro param when a real IMU block references it.
+    params = "mode can_interface_left can_interface_right calibration_file"
+    if real_imu:
+        params += " imu_port"
+    # Keep the header comment byte-identical for non-IMU robots (only the IMU
+    # ones gain the "(plus the base IMU sensor)" note), so regenerating a robot
+    # without a real IMU produces no diff.
+    if real_imu:
+        header = (
+            "  <!-- Real hardware: one <ros2_control> block per CAN bus (plus the base IMU\n"
+            "       sensor). The controller_manager runs them concurrently and exposes a\n"
+            "       single flat joint list to controllers. -->")
+    else:
+        header = (
+            "  <!-- Real hardware: one <ros2_control> block per CAN bus. The controller_manager\n"
+            "       runs them concurrently and exposes a single flat joint list to controllers. -->")
+    return f"""{header}
   <xacro:macro name="{robot}_ros2_control_real"
-               params="mode can_interface_left can_interface_right calibration_file">
+               params="{params}">
 {body}
   </xacro:macro>"""
 
 
-def _top_macro(robot: str, name: str) -> str:
+def _top_macro(robot: str, name: str, imu: dict | None = None) -> str:
+    real_imu = bool(imu and imu.get("real_plugin"))
+    imu_param = " imu_port" if real_imu else ""
+    imu_pass = "\n        imu_port=\"${imu_port}\"" if real_imu else ""
     return f"""  <!-- Top-level dispatch: combined block for sim/mock, per-bus blocks for real
        (use_sim wins over use_fake_hardware, matching franka_ros2 / UR precedence). -->
   <xacro:macro name="{robot}_ros2_control"
                params="name use_fake_hardware use_sim mode
-                       can_interface_left can_interface_right calibration_file">
+                       can_interface_left can_interface_right calibration_file{imu_param}">
     <xacro:if value="${{use_sim or use_fake_hardware}}">
       <xacro:{robot}_ros2_control_combined name="${{name}}"
         use_fake_hardware="${{use_fake_hardware}}" use_sim="${{use_sim}}"/>
@@ -230,7 +275,7 @@ def _top_macro(robot: str, name: str) -> str:
       <xacro:{robot}_ros2_control_real mode="${{mode}}"
         can_interface_left="${{can_interface_left}}"
         can_interface_right="${{can_interface_right}}"
-        calibration_file="${{calibration_file}}"/>
+        calibration_file="${{calibration_file}}"{imu_pass}/>
     </xacro:unless>
   </xacro:macro>"""
 
@@ -479,9 +524,10 @@ def build_ros2_control_xacro(robot: str, ros2_control: dict, limits: dict) -> st
     parts = [_joint_macro(robot, command, state)]
     for group in groups:
         parts.append(_group_macro(robot, group["name"], joints_by_group.get(group["name"], []), limits))
-    parts.append(_combined_macro(robot, combined_name, active_groups, backends, ros2_control.get("imu")))
-    parts.append(_real_macro(robot, groups, backends))
-    parts.append(_top_macro(robot, combined_name))
+    imu = ros2_control.get("imu")
+    parts.append(_combined_macro(robot, combined_name, active_groups, backends, imu))
+    parts.append(_real_macro(robot, groups, backends, imu))
+    parts.append(_top_macro(robot, combined_name, imu))
 
     body = "\n\n".join(parts)
     return (
@@ -514,6 +560,8 @@ def build_assembly_xacro(robot: str, ros2_control: dict | None, package: str = D
     args = ros2_control.get("args", {})
     arg_decls = "\n".join(f'  <xacro:arg name="{k}" default="{v}"/>' for k, v in args.items())
     name_attr = ros2_control.get("combined_block_name", f"{robot}_system")
+    imu = ros2_control.get("imu")
+    imu_pass = '\n    imu_port="$(arg imu_port)"' if (imu and imu.get("real_plugin")) else ""
     return f"""<?xml version="1.0"?>
 {_banner(robot)}
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="{robot}">
@@ -531,7 +579,7 @@ def build_assembly_xacro(robot: str, ros2_control: dict | None, package: str = D
     mode="$(arg mode)"
     can_interface_left="$(arg can_interface_left)"
     can_interface_right="$(arg can_interface_right)"
-    calibration_file="$(arg calibration_file)"/>
+    calibration_file="$(arg calibration_file)"{imu_pass}/>
 </robot>
 """
 
